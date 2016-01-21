@@ -25,6 +25,7 @@ begin
 
 -- Insert your processes here
 process (clk, reset)
+    begin
     if reset = '1' then
         state <= A;
     else
@@ -61,8 +62,6 @@ process (clk, reset)
                 state <= A;    
         end case ;
     end if ;
-begin
-
 end process;
 
 
