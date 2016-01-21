@@ -61,10 +61,10 @@ BEGIN
 
     -- "//abc\n"
 
-    s_input <= "0101111";
+    s_input <= "00101111";
     wait for 1 * clk_period;
 
-    s_input <= "0101111";
+    s_input <= "00101111";
     wait for 1 * clk_period;
 
     s_input <= "01100001";

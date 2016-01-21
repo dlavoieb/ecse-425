@@ -26,42 +26,46 @@ begin
 -- Insert your processes here
 process (clk, reset)
     begin
-    if reset = '1' then
-        state <= A;
-    else
-        case( state ) is
+    if rising_edge(clk) then
         
-            when A =>
-                if input = SLASH_CHARACTER then
-                    state <= B;
-                end if ;
-            when B =>
-                if input = SLASH_CHARACTER then
-                    state <= C;
-                elsif input = STAR_CHARACTER then
-                    state <= D;
-                else
-                    state <= A;
-                end if ;
-            when C =>
-                if input = NEW_LINE_CHARACTER then
-                    state <= A;
-                end if ;
-            when D =>
-                if input = STAR_CHARACTER then
-                    state <= E;
-                end if ;
-            when E =>
-                if input = SLASH_CHARACTER then
-                    state <= A;
-                else
-                    state <= D;
-                end if ;
-    
-            when others =>
-                state <= A;    
-        end case ;
+        if reset = '1' then
+            state <= A;
+        else
+            case( state ) is
+            
+                when A =>
+                    if input = SLASH_CHARACTER then
+                        state <= B;
+                    end if ;
+                when B =>
+                    if input = SLASH_CHARACTER then
+                        state <= C;
+                    elsif input = STAR_CHARACTER then
+                        state <= D;
+                    else
+                        state <= A;
+                    end if ;
+                when C =>
+                    if input = NEW_LINE_CHARACTER then
+                        state <= A;
+                    end if ;
+                when D =>
+                    if input = STAR_CHARACTER then
+                        state <= E;
+                    end if ;
+                when E =>
+                    if input = SLASH_CHARACTER then
+                        state <= A;
+                    else
+                        state <= D;
+                    end if ;
+        
+                when others =>
+                    state <= A;    
+            end case ;
+        end if ;
     end if ;
+
 end process;
 
 
