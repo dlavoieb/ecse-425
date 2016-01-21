@@ -135,10 +135,10 @@ BEGIN
 
     --/*abc/abc*/
 
-    s_input <= "0101111";
+    s_input <= "00101111";
     wait for 1 * clk_period;
 
-    s_input <= "0101010";
+    s_input <= "00101010";
     wait for 1 * clk_period;
 
     s_input <= "01100001";
@@ -150,7 +150,7 @@ BEGIN
     s_input <= "01100011";
     wait for 1 * clk_period;
 
-    s_input <= "0101111";
+    s_input <= "00101111";
     wait for 1 * clk_period;
 
     s_input <= "01100001";
