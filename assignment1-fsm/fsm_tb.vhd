@@ -45,6 +45,41 @@ BEGIN
 	ASSERT (s_output = '0') REPORT "When reading a meaningless character, the output should be '0'" SEVERITY ERROR;
 	REPORT "_______________________";
     
+    --"abc\n"
+
+    s_input <= "01100001";
+    wait for 1 * clk_period;
+
+    s_input <= "01100010";
+    wait for 1 * clk_period;
+
+    s_input <= "01100011";
+    wait for 1 * clk_period;
+
+    s_input <= "00001010";
+    wait for 1 * clk_period;
+
+    -- "//abc\n"
+
+    s_input <= "0101111";
+    wait for 1 * clk_period;
+
+    s_input <= "0101111";
+    wait for 1 * clk_period;
+
+    s_input <= "01100001";
+    wait for 1 * clk_period;
+
+    s_input <= "01100010";
+    wait for 1 * clk_period;
+
+    s_input <= "01100011";
+    wait for 1 * clk_period;
+
+    s_input <= "00001010";
+    wait for 1 * clk_period;
+
+    
 	WAIT;
 END PROCESS stim_process;
 END;
