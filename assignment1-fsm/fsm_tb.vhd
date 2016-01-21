@@ -79,6 +79,97 @@ BEGIN
     s_input <= "00001010";
     wait for 1 * clk_period;
 
+    --abc
+
+    s_input <= "1100001";
+    wait for 1 * clk_period;
+
+    s_input <= "1100010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100011";
+    wait for 1 * clk_period;
+
+    s_input <= "1010";
+    wait for 1 * clk_period;
+
+    --/*abc*/
+
+    s_input <= "101111";
+    wait for 1 * clk_period;
+
+    s_input <= "101010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100001";
+    wait for 1 * clk_period;
+
+    s_input <= "1100010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100011";
+    wait for 1 * clk_period;
+
+    s_input <= "101010";
+    wait for 1 * clk_period;
+
+    s_input <= "101111";
+    wait for 1 * clk_period;
+
+    s_input <= "1010";
+    wait for 1 * clk_period;
+
+    --abc
+
+    s_input <= "1100001";
+    wait for 1 * clk_period;
+
+    s_input <= "1100010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100011";
+    wait for 1 * clk_period;
+
+    s_input <= "1010";
+    wait for 1 * clk_period;
+
+    --/*abc/abc*/
+
+    s_input <= "101111";
+    wait for 1 * clk_period;
+
+    s_input <= "101010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100001";
+    wait for 1 * clk_period;
+
+    s_input <= "1100010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100011";
+    wait for 1 * clk_period;
+
+    s_input <= "101111";
+    wait for 1 * clk_period;
+
+    s_input <= "1100001";
+    wait for 1 * clk_period;
+
+    s_input <= "1100010";
+    wait for 1 * clk_period;
+
+    s_input <= "1100011";
+    wait for 1 * clk_period;
+
+    s_input <= "101010";
+    wait for 1 * clk_period;
+
+    s_input <= "101111";
+    wait for 1 * clk_period;
+
+    s_input <= "1010";
+    wait for 1 * clk_period;
     
 	WAIT;
 END PROCESS stim_process;
