@@ -4,6 +4,7 @@ proc AddWaves {} {
     add wave -position end sim:/fsm_tb/s_reset
     add wave -position end sim:/fsm_tb/s_input
     add wave -position end sim:/fsm_tb/s_output
+    radix signal /fsm_tb/s_input ASCII
 }
 
 vlib work

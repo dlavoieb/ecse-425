@@ -26,7 +26,7 @@ begin
 -- Insert your processes here
 process (clk, reset)
     begin
-    if rising_edge(clk) then
+    if falling_edge(clk) then
         
         if reset = '1' then
             state <= A;
@@ -69,13 +69,15 @@ process (clk, reset)
 end process;
 
 
-controller : process( state )
+controller : process( state, clk )
 begin
-    if (state = C or state = D or state = E) then
-        output <= '1';
-    else
-        output <= '0';
-    end if ;
+    --if rising_edge(clk) then
+        if (state = C or state = D or state = E) then
+            output <= '1';
+        else
+            output <= '0';
+        end if ;
+    --end if;
 end process ; -- controller
 
 end behavioral;
