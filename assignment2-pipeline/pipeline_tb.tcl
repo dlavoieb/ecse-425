@@ -12,6 +12,7 @@ proc AddWaves {} {
     add wave -position end sim:/pipeline_tb/s_op4
     add wave -position end sim:/pipeline_tb/s_op5
     add wave -position end sim:/pipeline_tb/s_final_output
+    add wave -position end sim:/pipeline_tb/step_output
 }
 
 vlib work
