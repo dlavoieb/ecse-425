@@ -4,6 +4,34 @@
 		"selected_items":
 		[
 			[
+				"op",
+				"op2_internal"
+			],
+			[
+				"clk",
+				"clk_period"
+			],
+			[
+				"cl",
+				"clk_period"
+			],
+			[
+				"op5",
+				"op5_internal"
+			],
+			[
+				"op3",
+				"op3_internal"
+			],
+			[
+				"op2",
+				"op2_internal"
+			],
+			[
+				"op1",
+				"op1_internal"
+			],
+			[
 				"Timeou",
 				"TimeoutException"
 			],
@@ -486,39 +514,19 @@
 			[
 				"bri",
 				"full-bridge"
-			],
-			[
-				"aff",
-				"affordable"
-			],
-			[
-				"am",
-				"amplifier"
-			],
-			[
-				"amp",
-				"amplifier"
-			],
-			[
-				"ap",
-				"amplification"
-			],
-			[
-				"signa",
-				"signal"
-			],
-			[
-				"comm",
-				"common-mode"
-			],
-			[
-				"fu",
-				"full_power_supply"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "ecse-425.sublime-project",
+			"settings":
+			{
+				"buffer_size": 45,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -727,10 +735,12 @@
 	},
 	"expanded_folders":
 	[
-		"/Volumes/OSX Storage/Google Drive/Classes/ECSE 425"
+		"/Volumes/OSX Storage/repositories/ecse-425"
 	],
 	"file_history":
 	[
+		"/Volumes/OSX Storage/Google Drive/Classes/ECSE 425/assignment2-pipeline/pipeline.vhd",
+		"/Volumes/OSX Storage/Google Drive/Classes/ECSE 425/assignment2-pipeline/pipeline_tb.vhd",
 		"/Volumes/OSX Storage/repositories/rover/catkin_ws/src/arduino/arm/arm.cpp",
 		"/Volumes/OSX Storage/repositories/rover/.gitmodules",
 		"/Volumes/OSX Storage/repositories/rover/catkin_ws/src/arduino/drive/main.cpp",
@@ -856,9 +866,7 @@
 		"/Users/David/VMs/SharedFolder/rover/Arduino/OTS_Drive/OTS_Drive.ino",
 		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/control_systems/src/joystickread.py",
 		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/hci/config/joystick_profile.yaml",
-		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/hci/launch/hci.launch",
-		"/Users/David/repositories/rover/catkin_ws/src/control_systems/msg/SetPoints.msg",
-		"/Users/David/repositories/rover/Arduino/OTS_Drive/pins.h"
+		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/hci/launch/hci.launch"
 	],
 	"find":
 	{
@@ -1055,8 +1063,39 @@
 	"groups":
 	[
 		{
+			"selected": 0,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "ecse-425.sublime-project",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 45,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"WordCountShouldRun": false,
+							"WordCountSyntax": "json",
+							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -1143,7 +1182,7 @@
 		[
 			[
 				"",
-				"~/Documents/story.sublime-project"
+				"/Volumes/OSX Storage/repositories/rover.sublime-project"
 			]
 		],
 		"width": 380.0

@@ -11,7 +11,6 @@ COMPONENT pipeline IS
 port (clk : in std_logic;
       a, b, c, d, e : in integer;
       op1, op2, op3, op4, op5, final_output : out integer;
-      step_out : out integer
   );
 END COMPONENT;
 
@@ -19,13 +18,12 @@ END COMPONENT;
 SIGNAL clk: STD_LOGIC := '0';
 SIGNAL s_a, s_b, s_c, s_d, s_e : INTEGER := 0;
 SIGNAL s_op1, s_op2, s_op3, s_op4, s_op5, s_final_output : INTEGER := 0;
-signal step_output : INTEGER;
 
 CONSTANT clk_period : time := 1 ns;
 
 BEGIN
 dut: pipeline
-PORT MAP(clk, s_a, s_b, s_c, s_d, s_e, s_op1, s_op2, s_op3, s_op4, s_op5, s_final_output, step_output);
+PORT MAP(clk, s_a, s_b, s_c, s_d, s_e, s_op1, s_op2, s_op3, s_op4, s_op5, s_final_output);
 
  --clock process
 clk_process : PROCESS
