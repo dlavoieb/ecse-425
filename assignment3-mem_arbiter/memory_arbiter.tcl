@@ -237,7 +237,7 @@ proc TestPort1WaitForPort2 {} {
   
   ;# Port 2 should have finished its read. Make sure that Port 1 hasn't started it read yet.
   set testResult [expr [exa /memory_arbiter/busy1] == 1 && [exa /memory_arbiter/busy2] == 0]
-  
+
   ;# Finish up all operations
   WaitForAllPorts
   run 1 ns

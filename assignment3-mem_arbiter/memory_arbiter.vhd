@@ -129,6 +129,7 @@ begin
             busy2 <= '0';
         end if ;
     elsif state = R2 or state = W2 then
+        busy2 <= '1';
         if next_state = R1 or next_state = W1 then
             busy1 <= '1';
         else
