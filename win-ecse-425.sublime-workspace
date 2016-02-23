@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"pr",
+				"print"
+			],
+			[
+				"for",
+				"format"
+			],
+			[
+				"print",
+				"print_step"
+			],
+			[
+				"f",
+				"final"
+			],
+			[
+				"ass",
+				"assert_number"
+			],
+			[
+				"def",
+				"def	Function"
+			],
+			[
+				"clk",
+				"clk_period"
+			],
+			[
+				"wai",
+				"WAIT"
+			],
+			[
 				"st",
 				"step"
 			],
@@ -98,10 +130,6 @@
 			[
 				"St",
 				"SteeringCondition〔class〕"
-			],
-			[
-				"def",
-				"defs	Method"
 			],
 			[
 				"d",
@@ -486,39 +514,35 @@
 			[
 				"sho",
 				"shown"
-			],
-			[
-				"des",
-				"description"
-			],
-			[
-				"fig",
-				"figure	Figure"
-			],
-			[
-				"rec",
-				"rectifier"
-			],
-			[
-				"bri",
-				"full-bridge"
-			],
-			[
-				"aff",
-				"affordable"
-			],
-			[
-				"am",
-				"amplifier"
-			],
-			[
-				"amp",
-				"amplifier"
 			]
 		]
 	},
 	"buffers":
 	[
+		{
+			"file": "assignment2-pipeline/pipeline_tb.vhd",
+			"settings":
+			{
+				"buffer_size": 9457,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "assignment2-pipeline/pipeline_tb.tcl",
+			"settings":
+			{
+				"buffer_size": 928,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "assignment2-pipeline/pipeline.vhd",
+			"settings":
+			{
+				"buffer_size": 1293,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -547,10 +571,14 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 217.0,
-		"last_filter": ":insta",
+		"height": 140.0,
+		"last_filter": ":pyh",
 		"selected_items":
 		[
+			[
+				":pyh",
+				"Set Syntax: Python"
+			],
 			[
 				":insta",
 				"Package Control: Install Package"
@@ -708,7 +736,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 600.0
+		"width": 572.0
 	},
 	"console":
 	{
@@ -732,10 +760,12 @@
 	"expanded_folders":
 	[
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425",
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment1-fsm",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline"
 	],
 	"file_history":
 	[
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline/generate_tb.py",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/win-ecse-425.sublime-project",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/pipeline_tb.tcl",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/pipeline_tb.vhd",
@@ -862,12 +892,11 @@
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test4.conf",
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest4.log",
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test1.conf",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest3.log",
-		"/Users/David/Documents/Arduino/Projects/SerialSwitcher/node_modules/grunt-autoprefixer/node_modules/autoprefixer/node_modules/caniuse-db/region-usage-json/CG.json"
+		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest3.log"
 	],
 	"find":
 	{
-		"height": 31.0
+		"height": 101.0
 	},
 	"find_in_files":
 	{
@@ -887,6 +916,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"REPORT",
+			"no good",
 			"\\n",
 			".cpp",
 			"\n\n",
@@ -1012,9 +1043,7 @@
 			"case",
 			"while(!Serial.available()){delay(10);}\n    ",
 			"built",
-			"bit",
-			"break",
-			"case"
+			"bit"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1060,8 +1089,105 @@
 	"groups":
 	[
 		{
+			"selected": 2,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "assignment2-pipeline/pipeline_tb.vhd",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9457,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								913,
+								913
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline_tb.vhd",
+							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
+							"syntax": "Packages/VHDL/Syntaxes/VHDL.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 6930.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "assignment2-pipeline/pipeline_tb.tcl",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 928,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								925,
+								925
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline_tb.tcl",
+							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
+							"syntax": "Packages/TCL/Tcl.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "assignment2-pipeline/pipeline.vhd",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1293,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								407,
+								407
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline.vhd",
+							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
+							"syntax": "Packages/VHDL/Syntaxes/VHDL.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],

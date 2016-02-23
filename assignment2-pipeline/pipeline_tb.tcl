@@ -30,4 +30,4 @@ force -deposit clk 0 0 ns, 1 0.5 ns -repeat 1 ns
 AddWaves
 
 ;# Run for 50 ns
-run 50ns
+run 20ns
