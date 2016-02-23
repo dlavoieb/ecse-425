@@ -520,11 +520,11 @@
 	"buffers":
 	[
 		{
-			"file": "ecse-425.sublime-project",
+			"file": "assignment3-mem_arbiter/memory_arbiter.tcl",
 			"settings":
 			{
-				"buffer_size": 45,
-				"line_ending": "Unix"
+				"buffer_size": 9037,
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -555,10 +555,26 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 354.0,
-		"last_filter": ":w",
+		"height": 165.0,
+		"last_filter": ":push",
 		"selected_items":
 		[
+			[
+				":push",
+				"Git: Push"
+			],
+			[
+				":co",
+				"Git: Commit"
+			],
+			[
+				":stat",
+				"Git: Status"
+			],
+			[
+				":add",
+				"Git: Add All"
+			],
 			[
 				":w",
 				":w - Save"
@@ -622,10 +638,6 @@
 			[
 				":pull",
 				"Git: Pull Current Branch"
-			],
-			[
-				":co",
-				"Git: Commit history"
 			],
 			[
 				":comm",
@@ -735,10 +747,16 @@
 	},
 	"expanded_folders":
 	[
-		"/Volumes/OSX Storage/repositories/ecse-425"
+		"/Volumes/OSX Storage/repositories/ecse-425",
+		"/Volumes/OSX Storage/repositories/ecse-425/assignment3-mem_arbiter"
 	],
 	"file_history":
 	[
+		"/Volumes/OSX Storage/repositories/ecse-425/assignment3-mem_arbiter/Main_Memory.vhd",
+		"/Volumes/OSX Storage/repositories/ecse-425/assignment2-pipeline/pipeline.vhd",
+		"/Volumes/OSX Storage/repositories/ecse-425/assignment2-pipeline/pipeline_tb.tcl",
+		"/Volumes/OSX Storage/repositories/ecse-425/assignment2-pipeline/pipeline_tb.vhd",
+		"/Volumes/OSX Storage/repositories/ecse-425/ecse-425.sublime-project",
 		"/Volumes/OSX Storage/Google Drive/Classes/ECSE 425/assignment2-pipeline/pipeline.vhd",
 		"/Volumes/OSX Storage/Google Drive/Classes/ECSE 425/assignment2-pipeline/pipeline_tb.vhd",
 		"/Volumes/OSX Storage/repositories/rover/catkin_ws/src/arduino/arm/arm.cpp",
@@ -861,12 +879,7 @@
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test4.conf",
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest4.log",
 		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test1.conf",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest3.log",
-		"/Users/David/Documents/Arduino/Projects/SerialSwitcher/node_modules/grunt-autoprefixer/node_modules/autoprefixer/node_modules/caniuse-db/region-usage-json/CG.json",
-		"/Users/David/VMs/SharedFolder/rover/Arduino/OTS_Drive/OTS_Drive.ino",
-		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/control_systems/src/joystickread.py",
-		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/hci/config/joystick_profile.yaml",
-		"/Users/David/VMs/SharedFolder/rover/catkin_ws/src/hci/launch/hci.launch"
+		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest3.log"
 	],
 	"find":
 	{
@@ -1068,26 +1081,28 @@
 			[
 				{
 					"buffer": 0,
-					"file": "ecse-425.sublime-project",
-					"semi_transient": false,
+					"file": "assignment3-mem_arbiter/memory_arbiter.tcl",
+					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 45,
+						"buffer_size": 9037,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1366,
+								1366
 							]
 						],
 						"settings":
 						{
-							"WordCountShouldRun": false,
-							"WordCountSyntax": "json",
-							"syntax": "Packages/JavaScript/JSON.tmLanguage"
+							"WordCountShouldRun": true,
+							"WordCountSyntax": "tcl",
+							"syntax": "Packages/TCL/Tcl.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
