@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"mm_w",
+				"mm_wr_done"
+			],
+			[
+				"ch1",
+				"ch1_processing"
+			],
+			[
+				"de",
+				"defs	Method"
+			],
+			[
 				"pr",
 				"print"
 			],
@@ -324,10 +336,6 @@
 				"following"
 			],
 			[
-				"de",
-				"delta"
-			],
-			[
 				"perio",
 				"periods"
 			],
@@ -506,41 +514,25 @@
 			[
 				"ele",
 				"electrocardiogram"
-			],
-			[
-				"sign",
-				"signal-to-noise"
-			],
-			[
-				"sho",
-				"shown"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "assignment2-pipeline/pipeline_tb.vhd",
+			"file": "assignment3-mem_arbiter/memory_arbiter.vhd",
 			"settings":
 			{
-				"buffer_size": 9457,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "assignment2-pipeline/pipeline_tb.tcl",
-			"settings":
-			{
-				"buffer_size": 928,
+				"buffer_size": 5586,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "assignment2-pipeline/pipeline.vhd",
+			"file": "assignment3-mem_arbiter/memory_arbiter.tcl",
 			"settings":
 			{
-				"buffer_size": 1293,
-				"line_ending": "Unix"
+				"buffer_size": 9615,
+				"line_ending": "Windows"
 			}
 		}
 	],
@@ -571,10 +563,30 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 140.0,
-		"last_filter": ":pyh",
+		"height": 328.0,
+		"last_filter": "qui",
 		"selected_items":
 		[
+			[
+				"qui",
+				"Git: Quick Commit"
+			],
+			[
+				":add",
+				"Git: Add Current File"
+			],
+			[
+				":pull",
+				"Git: Pull Current Branch"
+			],
+			[
+				":ins",
+				"Package Control: Install Package"
+			],
+			[
+				":py",
+				"Set Syntax: Python"
+			],
 			[
 				":pyh",
 				"Set Syntax: Python"
@@ -652,20 +664,12 @@
 				"Git: Diff Current File"
 			],
 			[
-				":pull",
-				"Git: Pull Current Branch"
-			],
-			[
 				":co",
 				"Git: Commit history"
 			],
 			[
 				":comm",
 				"Git: Commit history"
-			],
-			[
-				":ins",
-				"Package Control: Install Package"
 			],
 			[
 				"find",
@@ -736,7 +740,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 572.0
+		"width": 612.0
 	},
 	"console":
 	{
@@ -760,18 +764,22 @@
 	"expanded_folders":
 	[
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425",
-		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment1-fsm",
-		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline"
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment3-mem_arbiter"
 	],
 	"file_history":
 	[
+		"/C/Users/davidlb/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Users/davidlb/AppData/Local/Temp/Temp1_fsm.zip/fsm_tb.vhd",
+		"/C/Users/davidlb/AppData/Roaming/Sublime Text 3/Packages/User/Distraction Free.sublime-settings",
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline/pipeline.vhd",
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline/pipeline_tb.tcl",
+		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline/pipeline_tb.vhd",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/assignment2-pipeline/generate_tb.py",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/win-ecse-425.sublime-project",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/pipeline_tb.tcl",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/pipeline_tb.vhd",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/pipeline.vhd",
 		"/C/Users/davidlb/Documents/ecse-425/ecse-425/.gitignore",
-		"/C/Users/davidlb/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
 		"/Volumes/OSX Storage/repositories/rover/catkin_ws/src/arduino/arm/arm.cpp",
 		"/Volumes/OSX Storage/repositories/rover/.gitmodules",
 		"/Volumes/OSX Storage/repositories/rover/catkin_ws/src/arduino/drive/main.cpp",
@@ -887,16 +895,11 @@
 		"/Users/David/.zsh_history",
 		"/Users/David/Documents/IREQ/matlab_code/latex/Essai8juillet-annotated.tex",
 		"/Users/David/Documents/IREQ/bandwidth_test/lev4/test1.conf",
-		"/Users/David/Documents/IREQ/matlab_code/Essai8juillet.m",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test5.conf",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test4.conf",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest4.log",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/test1.conf",
-		"/Users/David/Documents/IREQ/bandwidth_test/8juilLEV3/gpsLogs/gpsTest3.log"
+		"/Users/David/Documents/IREQ/matlab_code/Essai8juillet.m"
 	],
 	"find":
 	{
-		"height": 101.0
+		"height": 55.0
 	},
 	"find_in_files":
 	{
@@ -916,6 +919,8 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"ch1_processing",
+			"ch2_processing",
 			"REPORT",
 			"no good",
 			"\\n",
@@ -1041,9 +1046,7 @@
 			"QLineEdit",
 			",",
 			"case",
-			"while(!Serial.available()){delay(10);}\n    ",
-			"built",
-			"bit"
+			"while(!Serial.available()){delay(10);}\n    "
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1089,103 +1092,71 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "assignment2-pipeline/pipeline_tb.vhd",
+					"file": "assignment3-mem_arbiter/memory_arbiter.vhd",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9457,
+						"buffer_size": 5586,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								913,
-								913
+								36,
+								36
 							]
 						],
 						"settings":
 						{
-							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline_tb.vhd",
+							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment3-mem_arbiter\\memory_arbiter.vhd",
 							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
 							"syntax": "Packages/VHDL/Syntaxes/VHDL.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 6930.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "assignment2-pipeline/pipeline_tb.tcl",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 928,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								925,
-								925
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline_tb.tcl",
-							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
-							"syntax": "Packages/TCL/Tcl.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "assignment2-pipeline/pipeline.vhd",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1293,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								407,
-								407
-							]
-						],
-						"settings":
-						{
-							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment2-pipeline\\pipeline.vhd",
-							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
-							"syntax": "Packages/VHDL/Syntaxes/VHDL.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": -0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "assignment3-mem_arbiter/memory_arbiter.tcl",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9615,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8318,
+								8318
+							]
+						],
+						"settings":
+						{
+							"git_savvy.file_path": "C:\\Users\\davidlb\\Documents\\ecse-425\\ecse-425\\assignment3-mem_arbiter\\memory_arbiter.tcl",
+							"git_savvy.repo_path": "C:/Users/davidlb/Documents/ecse-425/ecse-425",
+							"syntax": "Packages/TCL/Tcl.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 6177.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
 					"type": "text"
 				}
 			]
@@ -1222,6 +1193,10 @@
 		]
 	},
 	"menu_visible": true,
+	"output.GitSavvy":
+	{
+		"height": 182.0
+	},
 	"output.exec":
 	{
 		"height": 105.0
@@ -1296,7 +1271,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 255.0,
+	"side_bar_width": 336.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

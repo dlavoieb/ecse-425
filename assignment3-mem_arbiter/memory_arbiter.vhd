@@ -1,3 +1,7 @@
+-- David Lavoie-Boutin id. 260583602
+-- Worked alone
+-- Time estimation 10 hours
+
 library ieee;
 use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -82,144 +86,72 @@ begin
                 state <= NO;
             end if ;
         end if ;
-
-    --    if state = NO then -- init or no states selected
-        --        if re1 = '1' then
-        --            state <= R1;
-        --            if re2 = '1'  then
-        --                next_state <= R2;
-        --            elsif we2 = '1' then
-        --                next_state <= W2;
-        --            end if ;
-        --        elsif we1 = '1' then
-        --            state <= W1;
-        --            if re2 = '1'  then
-        --                next_state <= R2;
-        --            elsif we2 = '1' then
-        --                next_state <= W2;
-        --            end if ;
-        --        elsif re2 = '1' then
-        --            state <= R2;
-        --        elsif we2 = '1' then
-        --            state <= W2;
-        --        end if ;
-
-        --    -- finished with task
-        --    elsif ch1_processing = '0' and (state = R1 or state = W1) then -- current state finished channel 1
-        --        state <= next_state;
-        --        next_state <= NO;
-
-        --    elsif ch2_processing = '0' and (state = R2 or state = W2) then
-        --        state <= next_state;
-        --        next_state <= NO;
-
-        --    -- busy with task, but next state empty
-        --    elsif next_state = NO then 
-        --        if ch1_processing = '1' and (state = R1 or state = W1) then -- current state finished channel 1
-        --            if re2 = '1' then
-        --                state <= R2;
-        --            elsif we2 = '1' then
-        --                state <= W2;
-        --            end if ;
-
-        --        elsif ch2_processing = '1' and (state = R2 or state = W2) then
-        --            if re1 = '1' then
-        --                state <= R1;
-        --            elsif we1 = '1' then
-        --                state <= W1;
-        --            end if ;
-        --        end if ;
-        --    end if ;
     end if ;
 end process ; -- state_selection
 
---busy_signal : process( state, next_state  )
-    --begin
-    --    if state = R1 or state = W1 then
-    --        busy1 <= '1';
-    --        if next_state = R2 or next_state = W2 then
-    --            busy2 <= '1';
-    --        else
-    --            busy2 <= '0';
-    --        end if ;
-    --    elsif state = R2 or state = W2 then
-    --        busy2 <= '1';
-    --        if next_state = R1 or next_state = W1 then
-    --            busy1 <= '1';
-    --        else
-    --            busy1 <= '0';
-    --        end if ;
-    --    else
-    --        --busy1 <= '0';
-    --        --busy2 <= '0';
-    --    end if ;
-    --end process ; -- busy_signal
-
 set_mem_ports : process( clk, state )
 begin
-    --if rising_edge(clk) then
-        if clk = '1' then
-            if state = W1 then
-                if we1 = '1' then
-                    mm_address <= addr1;
-                    mm_re <= '0';
-                    mm_we <= we1 and not mm_wr_done;
-                    mm_data <= data1;
-                    if mm_wr_done = '0' and we1 = '1'then
-                        ch1_processing <= '1';
-                    else
-                        ch1_processing <= '0';
-                    end if ;
-                    ch2_processing <= '0';
-                end if ;
-
-            elsif state = R1 then
-                if re1 = '1' then
-                    mm_address <= addr1;
-                    mm_re <= re1;
-                    mm_we <= '0';
-                    mm_data <= (others => 'Z');
-                    data1 <= mm_data;
-                    if mm_rd_ready = '0' then
-                        ch1_processing <= '1';
-                    else
-                        ch1_processing <= '0';
-                    end if ;
-                    ch2_processing <= '0';
-                end if ;
-                
-
-            elsif state = R2 then
-                if re2 = '1' then
-                    mm_address <= addr2;
-                    mm_re <= re2;
-                    mm_we <= '0';
-                    mm_data <= (others => 'Z');
-                    data2 <= mm_data;
-                    if mm_rd_ready = '0' and re2 = '1' then
-                        ch2_processing <= '1';
-                    else
-                        ch2_processing <= '0';
-                    end if ;
+    if clk = '1' then
+        if state = W1 then
+            if we1 = '1' then
+                mm_address <= addr1;
+                mm_re <= '0';
+                mm_we <= we1 and not mm_wr_done;
+                mm_data <= data1;
+                if mm_wr_done = '0' and we1 = '1'then
+                    ch1_processing <= '1';
+                else
                     ch1_processing <= '0';
                 end if ;
+                ch2_processing <= '0';
+            end if ;
 
-            elsif state = W2 then
-                if we2 = '1' then
-                    mm_address <= addr2;
-                    mm_re <= '0';
-                    mm_we <= we2 and not mm_wr_done;
-                    mm_data <= data2;
-                    if mm_wr_done = '0' and we2 = '1' then
-                        ch2_processing <= '1';
-                    else
-                        ch2_processing <= '0';
-                    end if ;
+        elsif state = R1 then
+            if re1 = '1' then
+                mm_address <= addr1;
+                mm_re <= re1;
+                mm_we <= '0';
+                mm_data <= (others => 'Z');
+                data1 <= mm_data;
+                if mm_rd_ready = '0' then
+                    ch1_processing <= '1';
+                else
                     ch1_processing <= '0';
                 end if ;
-            end if ;             
-        end if ;
-    --end if ;
+                ch2_processing <= '0';
+            end if ;
+            
+
+        elsif state = R2 then
+            if re2 = '1' then
+                mm_address <= addr2;
+                mm_re <= re2;
+                mm_we <= '0';
+                mm_data <= (others => 'Z');
+                data2 <= mm_data;
+                if mm_rd_ready = '0' and re2 = '1' then
+                    ch2_processing <= '1';
+                else
+                    ch2_processing <= '0';
+                end if ;
+                ch1_processing <= '0';
+            end if ;
+
+        elsif state = W2 then
+            if we2 = '1' then
+                mm_address <= addr2;
+                mm_re <= '0';
+                mm_we <= we2 and not mm_wr_done;
+                mm_data <= data2;
+                if mm_wr_done = '0' and we2 = '1' then
+                    ch2_processing <= '1';
+                else
+                    ch2_processing <= '0';
+                end if ;
+                ch1_processing <= '0';
+            end if ;
+        end if ;             
+    end if ;
 end process ; -- set_mem_ports
 
 
