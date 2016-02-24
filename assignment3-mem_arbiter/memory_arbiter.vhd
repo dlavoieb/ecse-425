@@ -78,6 +78,8 @@ begin
                 state <= R2;
             elsif we2 = '1' then
                 state <= W2;
+            else
+                state <= NO;
             end if ;
         end if ;
 
@@ -158,51 +160,84 @@ begin
     --if rising_edge(clk) then
         if clk = '1' then
             if state = W1 then
-                mm_address <= addr1;
-                mm_re <= '0';
-                mm_we <= we1 and not mm_wr_done;
-                mm_data <= data1;
-                ch1_processing <= not mm_wr_done;
+                if we1 = '1' then
+                    mm_address <= addr1;
+                    mm_re <= '0';
+                    mm_we <= we1 and not mm_wr_done;
+                    mm_data <= data1;
+                    if mm_wr_done = '0' and we1 = '1'then
+                        ch1_processing <= '1';
+                    else
+                        ch1_processing <= '0';
+                    end if ;
+                    ch2_processing <= '0';
+                end if ;
 
             elsif state = R1 then
-                mm_address <= addr1;
-                mm_re <= re1;
-                mm_we <= '0';
-                mm_data <= (others => 'Z');
-                ch1_processing <= not mm_rd_ready;
-                data1 <= mm_data;
+                if re1 = '1' then
+                    mm_address <= addr1;
+                    mm_re <= re1;
+                    mm_we <= '0';
+                    mm_data <= (others => 'Z');
+                    data1 <= mm_data;
+                    if mm_rd_ready = '0' then
+                        ch1_processing <= '1';
+                    else
+                        ch1_processing <= '0';
+                    end if ;
+                    ch2_processing <= '0';
+                end if ;
+                
 
             elsif state = R2 then
-                mm_address <= addr2;
-                mm_re <= re2;
-                mm_we <= '0';
-                mm_data <= (others => 'Z');
-                ch2_processing <= not mm_rd_ready;
-                data2 <= mm_data;
-                
+                if re2 = '1' then
+                    mm_address <= addr2;
+                    mm_re <= re2;
+                    mm_we <= '0';
+                    mm_data <= (others => 'Z');
+                    data2 <= mm_data;
+                    if mm_rd_ready = '0' and re2 = '1' then
+                        ch2_processing <= '1';
+                    else
+                        ch2_processing <= '0';
+                    end if ;
+                    ch1_processing <= '0';
+                end if ;
+
             elsif state = W2 then
-                mm_address <= addr2;
-                mm_re <= '0';
-                mm_we <= we2 and not mm_wr_done;
-                mm_data <= data2;
-                ch2_processing <= not mm_wr_done;
+                if we2 = '1' then
+                    mm_address <= addr2;
+                    mm_re <= '0';
+                    mm_we <= we2 and not mm_wr_done;
+                    mm_data <= data2;
+                    if mm_wr_done = '0' and we2 = '1' then
+                        ch2_processing <= '1';
+                    else
+                        ch2_processing <= '0';
+                    end if ;
+                    ch1_processing <= '0';
+                end if ;
             end if ;             
         end if ;
     --end if ;
 end process ; -- set_mem_ports
 
 
-monitor_ch1 : process( ch1_processing )
+monitor_ch1 : process( ch1_processing, re1, we1 )
 begin
     if falling_edge(ch1_processing) then
-            ch1_done <= '1'
+        ch1_done <= '1';
+    elsif falling_edge(re1) or falling_edge(we1) then
+        ch1_done <= '0';
     end if ;
 end process ; -- monitor_ch1
 
-monitor_ch2 : process( ch2_processing )
+monitor_ch2 : process( ch2_processing, re2, we2 )
 begin
     if falling_edge(ch2_processing) then
-            ch2_done <= '1'
+        ch2_done <= '1';
+    elsif falling_edge(re2) or falling_edge(we2) then
+        ch2_done <= '0';
     end if ;
 end process ; -- monitor_ch2
 

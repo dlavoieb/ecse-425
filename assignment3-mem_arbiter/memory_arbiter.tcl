@@ -38,6 +38,8 @@ proc AddWaves {} {
   add wave -position end  -radix hex sim:/memory_arbiter/main_memory/Block3/Memory(0)
   add wave -position end  sim:/memory_arbiter/state
   add wave -position end  sim:/memory_arbiter/next_state
+  add wave -position end  sim:/memory_arbiter/ch1_processing
+  add wave -position end  sim:/memory_arbiter/ch2_processing
 	
   configure wave -namecolwidth 250
 	WaveRestoreZoom {0 ns} {8 ns}
