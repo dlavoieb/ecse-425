@@ -29,16 +29,16 @@ architecture behavioral of memory_arbiter is
 
     --Main memory signals
     --Use these internal signals to interact with the main memory
-    SIGNAL mm_address       : NATURAL                                       := 0;
-    SIGNAL mm_we            : STD_LOGIC                                     := '0';
-    SIGNAL mm_wr_done       : STD_LOGIC                                     := '0';
-    SIGNAL mm_re            : STD_LOGIC                                     := '0';
-    SIGNAL mm_rd_ready      : STD_LOGIC                                     := '0';
-    SIGNAL mm_data          : STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0)   := (others => 'Z');
-    SIGNAL mm_initialize    : STD_LOGIC                                     := '0';
+    SIGNAL mm_address     : NATURAL                                       := 0;
+    SIGNAL mm_we          : STD_LOGIC                                     := '0';
+    SIGNAL mm_wr_done     : STD_LOGIC                                     := '0';
+    SIGNAL mm_re          : STD_LOGIC                                     := '0';
+    SIGNAL mm_rd_ready    : STD_LOGIC                                     := '0';
+    SIGNAL mm_data        : STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0)   := (others => 'Z');
+    SIGNAL mm_initialize  : STD_LOGIC                                     := '0';
 
-    SIGNAL ch1_busy         : STD_LOGIC                                     := '0';
-    SIGNAL ch2_busy         : STD_LOGIC                                     := '0';
+    SIGNAL ch1_processing, ch1_done : STD_LOGIC := '0';
+    SIGNAL ch2_processing, ch2_done : STD_LOGIC := '0';
 
     type States is (NO, R1, R2, W1, W2);
     signal state : States;
@@ -66,80 +66,92 @@ begin
         dump        => '0'
       );
 
-state_selection : process( clk, we1, we2, re1, re2, next_state )
+state_selection : process( clk, we1, we2, re1, re2, ch2_processing )
 begin
     if rising_edge(clk) then
-        if state = NO and next_state = NO then -- init or no states selected
+        if ch1_processing = '0' and ch2_processing = '0' then
             if re1 = '1' then
                 state <= R1;
-                if re2 = '1'  then
-                    next_state <= R2;
-                elsif we2 = '1' then
-                    next_state <= W2;
-                end if ;
             elsif we1 = '1' then
                 state <= W1;
-                if re2 = '1'  then
-                    next_state <= R2;
-                elsif we2 = '1' then
-                    next_state <= W2;
-                end if ;
             elsif re2 = '1' then
                 state <= R2;
             elsif we2 = '1' then
                 state <= W2;
             end if ;
-
-        -- finished with task
-        elsif ch1_busy = '0' and (state = R1 or state = W1) then -- current state finished channel 1
-            state <= next_state;
-            next_state <= NO;
-
-        elsif ch2_busy = '0' and (state = R2 or state = W2) then
-            state <= next_state;
-            next_state <= NO;
-
-        -- busy with task, but next state empty
-        elsif next_state = NO then 
-            if ch1_busy = '1' and (state = R1 or state = W1) then -- current state finished channel 1
-                if re2 = '1' then
-                    state <= R2;
-                elsif we2 = '1' then
-                    state <= W2;
-                end if ;
-
-            elsif ch2_busy = '1' and (state = R2 or state = W2) then
-                if re1 = '1' then
-                    state <= R1;
-                elsif we1 = '1' then
-                    state <= W1;
-                end if ;
-            end if ;
         end if ;
+
+    --    if state = NO then -- init or no states selected
+        --        if re1 = '1' then
+        --            state <= R1;
+        --            if re2 = '1'  then
+        --                next_state <= R2;
+        --            elsif we2 = '1' then
+        --                next_state <= W2;
+        --            end if ;
+        --        elsif we1 = '1' then
+        --            state <= W1;
+        --            if re2 = '1'  then
+        --                next_state <= R2;
+        --            elsif we2 = '1' then
+        --                next_state <= W2;
+        --            end if ;
+        --        elsif re2 = '1' then
+        --            state <= R2;
+        --        elsif we2 = '1' then
+        --            state <= W2;
+        --        end if ;
+
+        --    -- finished with task
+        --    elsif ch1_processing = '0' and (state = R1 or state = W1) then -- current state finished channel 1
+        --        state <= next_state;
+        --        next_state <= NO;
+
+        --    elsif ch2_processing = '0' and (state = R2 or state = W2) then
+        --        state <= next_state;
+        --        next_state <= NO;
+
+        --    -- busy with task, but next state empty
+        --    elsif next_state = NO then 
+        --        if ch1_processing = '1' and (state = R1 or state = W1) then -- current state finished channel 1
+        --            if re2 = '1' then
+        --                state <= R2;
+        --            elsif we2 = '1' then
+        --                state <= W2;
+        --            end if ;
+
+        --        elsif ch2_processing = '1' and (state = R2 or state = W2) then
+        --            if re1 = '1' then
+        --                state <= R1;
+        --            elsif we1 = '1' then
+        --                state <= W1;
+        --            end if ;
+        --        end if ;
+        --    end if ;
     end if ;
 end process ; -- state_selection
 
-busy_signal : process( state, next_state  )
-begin
-    if state = R1 or state = W1 then
-        busy1 <= '1';
-        if next_state = R2 or next_state = W2 then
-            busy2 <= '1';
-        else
-            busy2 <= '0';
-        end if ;
-    elsif state = R2 or state = W2 then
-        busy2 <= '1';
-        if next_state = R1 or next_state = W1 then
-            busy1 <= '1';
-        else
-            busy1 <= '0';
-        end if ;
-    else
-        busy1 <= '0';
-        busy2 <= '0';
-    end if ;
-end process ; -- busy_signal
+--busy_signal : process( state, next_state  )
+    --begin
+    --    if state = R1 or state = W1 then
+    --        busy1 <= '1';
+    --        if next_state = R2 or next_state = W2 then
+    --            busy2 <= '1';
+    --        else
+    --            busy2 <= '0';
+    --        end if ;
+    --    elsif state = R2 or state = W2 then
+    --        busy2 <= '1';
+    --        if next_state = R1 or next_state = W1 then
+    --            busy1 <= '1';
+    --        else
+    --            busy1 <= '0';
+    --        end if ;
+    --    else
+    --        --busy1 <= '0';
+    --        --busy2 <= '0';
+    --    end if ;
+    --end process ; -- busy_signal
 
 set_mem_ports : process( clk, state )
 begin
@@ -148,35 +160,54 @@ begin
             if state = W1 then
                 mm_address <= addr1;
                 mm_re <= '0';
-                mm_we <= '1' and not mm_wr_done;
+                mm_we <= we1 and not mm_wr_done;
                 mm_data <= data1;
-                ch1_busy <= not mm_wr_done;
+                ch1_processing <= not mm_wr_done;
 
             elsif state = R1 then
                 mm_address <= addr1;
-                mm_re <= '1';
+                mm_re <= re1;
                 mm_we <= '0';
                 mm_data <= (others => 'Z');
-                ch1_busy <= not mm_rd_ready;
+                ch1_processing <= not mm_rd_ready;
                 data1 <= mm_data;
 
             elsif state = R2 then
                 mm_address <= addr2;
-                mm_re <= '1';
+                mm_re <= re2;
                 mm_we <= '0';
                 mm_data <= (others => 'Z');
-                ch1_busy <= not mm_rd_ready;
-                --data2 <= (others => 'Z');
+                ch2_processing <= not mm_rd_ready;
+                data2 <= mm_data;
                 
             elsif state = W2 then
                 mm_address <= addr2;
                 mm_re <= '0';
-                mm_we <= '1' and not mm_wr_done;
+                mm_we <= we2 and not mm_wr_done;
                 mm_data <= data2;
-                ch2_busy <= not mm_wr_done;
+                ch2_processing <= not mm_wr_done;
             end if ;             
         end if ;
     --end if ;
 end process ; -- set_mem_ports
+
+
+monitor_ch1 : process( ch1_processing )
+begin
+    if falling_edge(ch1_processing) then
+            ch1_done <= '1'
+    end if ;
+end process ; -- monitor_ch1
+
+monitor_ch2 : process( ch2_processing )
+begin
+    if falling_edge(ch2_processing) then
+            ch2_done <= '1'
+    end if ;
+end process ; -- monitor_ch2
+
+-- process blocks drive the chX_done signal
+busy1 <= (re1 or we1) and not ch1_done;
+busy2 <= (re2 or we2) and not ch2_done;
 
 end behavioral;

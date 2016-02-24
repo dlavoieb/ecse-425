@@ -201,7 +201,7 @@ proc TestPort1StreamPriority {} {
   ;# write never completes.
   for {set i 0} {$i < 9} {incr i} {
 		PlaceWrite 1 0 12345678
-    
+    WaitForAnyPort
     
     if { [expr [ReadMemoryWord 0] != 0x12345678]} {
       WaitForAllPorts
@@ -214,7 +214,6 @@ proc TestPort1StreamPriority {} {
   
   ;# Verify that Port 2's write finally took place
   set memoryContent [ReadMemoryWord 0]
-  return $memoryContent
   set testResult [expr $memoryContent == 0xFFFFFFFF]
   
   ;# Wait for all operations to complete before returning
@@ -237,7 +236,7 @@ proc TestPort1WaitForPort2 {} {
   
   ;# Port 2 should have finished its read. Make sure that Port 1 hasn't started it read yet.
   set testResult [expr [exa /memory_arbiter/busy1] == 1 && [exa /memory_arbiter/busy2] == 0]
-
+  
   ;# Finish up all operations
   WaitForAllPorts
   run 1 ns
