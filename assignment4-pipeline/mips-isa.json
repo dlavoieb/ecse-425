@@ -134,5 +134,40 @@
         "type":"r",
         "opcode":"000000",
         "funct":"100011"
-    }    
+    },
+    "div":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"011010"
+    },
+    "divu":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"011011"
+    },
+    "mfhi":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"010000"
+    },
+    "mflo":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"010010"
+    },
+    "mfc0":{
+        "type":"r",
+        "opcode":"010000",
+        "funct":"000000"
+    },
+    "mult":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"010100"
+    },
+    "miltu":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"010101"
+    }                      
 }
