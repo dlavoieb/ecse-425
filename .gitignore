@@ -1,3 +1,4 @@
 */work/
 *.sublime-project
 *.sublime-workspace
+.idea
