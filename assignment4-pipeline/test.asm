@@ -3,6 +3,10 @@
 # $1: n
 # $2: running product (output n!)
 
+# random instructions to test the offset functionality
+lw $3 ($5)
+lw $3 372($5)
+
 Fact:   addi  $1, $0, 5         # input: n = 5
         addi  $2, $0, 1         # initialize output to 1
 Loop:   slti  $3, $1, 2         # if input is less than 2
@@ -10,5 +14,5 @@ Loop:   slti  $3, $1, 2         # if input is less than 2
         mult  $1, $2            # else multiply input and running product
         mflo  $2                # assume small numbers
         addi  $1, $1, -1        # decrement input
-        j Loop                  # and loop
+        j     Loop              # and loop
 Skip:   jr    $31               # return to caller

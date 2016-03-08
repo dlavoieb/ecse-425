@@ -3,10 +3,11 @@ __author__ = 'David Lavoie-Boutin'
 
 import re
 import json
-import pprint
+
 
 def encrypt(string, length):
     return ' '.join(string[i:i+length] for i in xrange(0,len(string),length))
+
 
 class Assembler(object):
 
@@ -47,13 +48,7 @@ class Assembler(object):
             pass
 
         if '$' in current:
-            if '(' in current and ')' in current:
-                # register = re.search(self.between_parentheses, current).group()
-                # offset = re.search(self.before_parentheses, current).group()
-                # todo: complete implementation of shifted register values
-                pass
-            else:
-                return int(inst_list[index].strip("$"))
+            return int(inst_list[index].strip("$"))
         elif "0x" in current:
             return int(inst_list[index], 16)
         else:
@@ -72,34 +67,76 @@ class Assembler(object):
             return
 
         if prop["type"] == "r":
-            if instruction[0] not in ["sll", "srl", "sra"]:
+            rd = "{:05b}".format(0)
+            rs = "{:05b}".format(0)
+            rt = "{:05b}".format(0)
+            sa = "{:05b}".format(0)
 
-                rs = "{:05b}".format(self.parse_argument(1,instruction))
-                rt = "{:05b}".format(self.parse_argument(2,instruction))
-                rd = "{:05b}".format(self.parse_argument(3,instruction))
-                sa = "{:05b}".format(0)
+            if instruction[0] in ["sll", "srl", "sra"]:
+                """
+                    format : sll $rd, $rt, $sa
+                """
 
-            else:
-                rs = "{:05b}".format(0)
                 rt = "{:05b}".format(self.parse_argument(2,instruction))
                 rd = "{:05b}".format(self.parse_argument(1,instruction))
                 sa = "{:05b}".format(self.parse_argument(3,instruction))
 
+            elif instruction[0] in ["div", "divu", "mult", "multu"]:
+                """
+                    format : div $rs, $rt
+                """
+                rs = "{:05b}".format(self.parse_argument(1,instruction))
+                rt = "{:05b}".format(self.parse_argument(2,instruction))
+
+            elif instruction[0] in ["mfhi", "mflo"]:
+                """
+                    format : mflo $rd
+                """
+                rd = "{:05b}".format(self.parse_argument(1,instruction))
+
+            elif instruction[0] in ["jr"]:
+                """
+                    format : rj $rs
+                """
+                rs = "{:05b}".format(self.parse_argument(1,instruction))
+
+            else:
+                """
+                    format : sll $rd, $rs, $rt
+                """
+                rs = "{:05b}".format(self.parse_argument(2,instruction))
+                rt = "{:05b}".format(self.parse_argument(3,instruction))
+                rd = "{:05b}".format(self.parse_argument(1,instruction))
+
             line = prop["opcode"] + rs + rt + rd + sa + prop["funct"]
 
         elif prop["type"] == "i":
-            rs = "{:05b}".format(self.parse_argument(1,instruction))
-            rt = "{:05b}".format(self.parse_argument(2,instruction))
-            immediate = "{:016b}".format(self.parse_argument(3,instruction))
+            rt = "{:05b}".format(self.parse_argument(1,instruction))
+            if instruction[0] in ["ll", "lw", "sh", "sc", "sb", "lbu", "lhu", "sw"]:
+                rs = "{:05b}".format(self.parse_argument(len(instruction) - 1,instruction))
+                if len(instruction) == 3:
+                    immediate = "{:016b}".format(0)
+                else:
+                    immediate = "{:016b}".format(self.parse_argument(2,instruction))
+            elif instruction[0] in ["lui"]:
+                rs = "{:05b}".format(0)
+                immediate = "{:016b}".format(self.parse_argument(2,instruction))
+
+            else:
+                rs = "{:05b}".format(self.parse_argument(2,instruction))
+                immediate = "{:016b}".format(self.parse_argument(3,instruction))
 
 
             line = prop["opcode"] + rs + rt + immediate
 
         elif prop["type"] == "j":
-            address = "{:026b}".format(self.parse_argument(3,instruction))
+            address = "{:026b}".format(self.parse_argument(1,instruction))
 
 
             line = prop["opcode"] + address
+
+        else:
+            line = "{:032b}".format(0)
 
         print encrypt(line, 4), '\t', instruction
         self.file_out.write(line + '\n')
@@ -146,4 +183,5 @@ class Assembler(object):
 
 if __name__ == '__main__':
     assembler = Assembler("./test.asm", "./mips-isa.json")
+    assembler.process_line("lw $3, 5($5)")
     assembler.run()

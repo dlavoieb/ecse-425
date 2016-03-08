@@ -155,17 +155,12 @@
         "opcode":"000000",
         "funct":"010010"
     },
-    "mfc0":{
-        "type":"r",
-        "opcode":"010000",
-        "funct":"000000"
-    },
     "mult":{
         "type":"r",
         "opcode":"000000",
         "funct":"010100"
     },
-    "miltu":{
+    "multu":{
         "type":"r",
         "opcode":"000000",
         "funct":"010101"
