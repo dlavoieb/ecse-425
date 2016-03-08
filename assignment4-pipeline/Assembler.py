@@ -2,8 +2,11 @@
 __author__ = 'David Lavoie-Boutin'
 
 import re
-import Queue
+import json
+import pprint
 
+def encrypt(string, length):
+    return ' '.join(string[i:i+length] for i in xrange(0,len(string),length))
 
 class Assembler(object):
 
@@ -11,20 +14,95 @@ class Assembler(object):
     inline_comment_regex = re.compile(ur'#.+$')
     label_regex = re.compile(ur'^.*?(?=:)')
     argument_regex = re.compile(ur'([\w|$]+)')
+    between_parentheses = re.compile(ur'(?<=\().+(?=\))')
+    before_parentheses = re.compile(ur'(?<=\s).+(?=\()')
 
-    def __init__(self, input_file, output_file):
+    def __init__(self, input_file, mips_isa_file):
         self.file_in = open(input_file, 'r')
-        # self.file_out = open(output_file, 'w')
+        self.file_temp = open(input_file + ".json", 'w')
+        self.file_out = open(input_file + ".bin", 'w')
+        self.mips_isa_file = open(mips_isa_file, 'r')
+        self.misp_isa = json.load(self.mips_isa_file)
 
         self.line_number = 0
         self.labels = {}
 
-        self.queue = Queue.Queue()
-        self.process_file()
+        self.queue = []
 
-        for elem in self.queue.queue:
-            print(elem)
-        print self.labels
+    def run(self):
+        self.process_file()
+        json.dump({"instructions":self.queue, "labels":self.labels}, self.file_temp, indent=4, separators=(',', ': '))
+        for ins in self.queue:
+            self.build_machine_code(ins)
+
+    def parse_argument(self, index, inst_list):
+        try:
+            current = inst_list[index]
+        except IndexError:
+            return 0
+
+        try:
+            return self.labels[inst_list[index]]
+        except KeyError:
+            pass
+
+        if '$' in current:
+            if '(' in current and ')' in current:
+                # register = re.search(self.between_parentheses, current).group()
+                # offset = re.search(self.before_parentheses, current).group()
+                # todo: complete implementation of shifted register values
+                pass
+            else:
+                return int(inst_list[index].strip("$"))
+        elif "0x" in current:
+            return int(inst_list[index], 16)
+        else:
+            return int(inst_list[index])
+
+
+    def build_machine_code(self, instruction):
+        try:
+            prop = self.misp_isa[instruction[0]]
+        except KeyError:
+            print("Invalid instruction identifier")
+            print(instruction)
+            exit(1)
+            return
+        except IndexError:
+            return
+
+        if prop["type"] == "r":
+            if instruction[0] not in ["sll", "srl", "sra"]:
+
+                rs = "{:05b}".format(self.parse_argument(1,instruction))
+                rt = "{:05b}".format(self.parse_argument(2,instruction))
+                rd = "{:05b}".format(self.parse_argument(3,instruction))
+                sa = "{:05b}".format(0)
+
+            else:
+                rs = "{:05b}".format(0)
+                rt = "{:05b}".format(self.parse_argument(2,instruction))
+                rd = "{:05b}".format(self.parse_argument(1,instruction))
+                sa = "{:05b}".format(self.parse_argument(3,instruction))
+
+            line = prop["opcode"] + rs + rt + rd + sa + prop["funct"]
+
+        elif prop["type"] == "i":
+            rs = "{:05b}".format(self.parse_argument(1,instruction))
+            rt = "{:05b}".format(self.parse_argument(2,instruction))
+            immediate = "{:016b}".format(self.parse_argument(3,instruction))
+
+
+            line = prop["opcode"] + rs + rt + immediate
+
+        elif prop["type"] == "j":
+            address = "{:026b}".format(self.parse_argument(3,instruction))
+
+
+            line = prop["opcode"] + address
+
+        print encrypt(line, 4), '\t', instruction
+        self.file_out.write(line + '\n')
 
     def process_file(self):
         for line in self.file_in:
@@ -38,15 +116,14 @@ class Assembler(object):
                 self.process_line(line)
 
 
-
     def process_line(self, line):
         """
-            Prior to entering this function full comments line should have been removed
+            Prior to entering this function, full comments line should have been removed
             Only instruction lines should be processed
         """
-        #remove comments
         comments = re.search(self.inline_comment_regex, line)
-        line = line.replace(comments.group(), "")
+        if comments:
+            line = line.replace(comments.group(), "")
 
         label = re.search(self.label_regex, line)
         if label:
@@ -58,13 +135,15 @@ class Assembler(object):
                 raise KeyError("Label already exists in program")
 
         args = re.findall(self.argument_regex, line)
-        self.queue.put(args)
+        self.queue.append(args)
         self.line_number += 1
 
     def __del__(self):
         self.file_in.close()
-        # self.file_out.close()
+        self.file_temp.close()
+        self.mips_isa_file.close()
         pass
 
 if __name__ == '__main__':
-    assembler = Assembler("./test.asm", "b")
+    assembler = Assembler("./test.asm", "./mips-isa.json")
+    assembler.run()
