@@ -8,15 +8,6 @@
         "type":"i",
         "opcode":"001000"
     },
-    "addiu":{
-        "type":"i",
-        "opcode":"001001"
-    },
-    "addu":{
-        "type":"r",
-        "opcode":"000000",
-        "funct":"100001"
-    },
     "and":{
         "type":"r",
         "opcode":"000000",
@@ -47,9 +38,9 @@
         "opcode":"000000",
         "funct":"001000"
     },
-    "lbu":{
+    "lb":{
         "type":"i",
-        "opcode":"100100"
+        "opcode":"100000"
     },
     "lhu":{
         "type":"i",
@@ -90,15 +81,6 @@
         "type":"i",
         "opcode":"001010"
     },
-    "sltiu":{
-        "type":"i",
-        "opcode":"001011"
-    },
-    "sltu":{
-        "type":"r",
-        "opcode":"000000",
-        "funct":"101011"
-    },
     "sll":{
         "type":"r",
         "opcode":"000000",
@@ -113,14 +95,6 @@
         "type":"i",
         "opcode":"101000"
     },
-    "sc":{
-        "type":"i",
-        "opcode":"111000"
-    },
-    "sh":{
-        "type":"i",
-        "opcode":"111001"
-    },
     "sw":{
         "type":"i",
         "opcode":"101011"
@@ -130,20 +104,10 @@
         "opcode":"000000",
         "funct":"100010"
     },
-    "subu":{
-        "type":"r",
-        "opcode":"000000",
-        "funct":"100011"
-    },
     "div":{
         "type":"r",
         "opcode":"000000",
         "funct":"011010"
-    },
-    "divu":{
-        "type":"r",
-        "opcode":"000000",
-        "funct":"011011"
     },
     "mfhi":{
         "type":"r",
@@ -160,14 +124,18 @@
         "opcode":"000000",
         "funct":"010100"
     },
-    "multu":{
-        "type":"r",
-        "opcode":"000000",
-        "funct":"010101"
-    },
     "sra":{
         "type":"r",
         "opcode":"000000",
         "funct":"000011"
+    },
+    "xor":{
+        "type":"r",
+        "opcode":"000000",
+        "funct":"100110"
+    },
+    "xori":{
+        "type":"i",
+        "opcode":"001110"
     }
 }

@@ -112,7 +112,7 @@ class Assembler(object):
 
         elif prop["type"] == "i":
             rt = "{:05b}".format(self.parse_argument(1,instruction))
-            if instruction[0] in ["ll", "lw", "sh", "sc", "sb", "lbu", "lhu", "sw"]:
+            if instruction[0] in ["ll", "lw", "sh", "sc", "sb", "lb", "lhu", "sw"]:
                 rs = "{:05b}".format(self.parse_argument(len(instruction) - 1,instruction))
                 if len(instruction) == 3:
                     immediate = "{:016b}".format(0)
@@ -125,7 +125,6 @@ class Assembler(object):
             else:
                 rs = "{:05b}".format(self.parse_argument(2,instruction))
                 immediate = "{:016b}".format(self.parse_argument(3,instruction))
-
 
             line = prop["opcode"] + rs + rt + immediate
 
@@ -183,5 +182,5 @@ class Assembler(object):
 
 if __name__ == '__main__':
     assembler = Assembler("./test.asm", "./mips-isa.json")
-    assembler.process_line("lw $3, 5($5)")
     assembler.run()
+    
