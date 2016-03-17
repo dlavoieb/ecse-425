@@ -14,14 +14,20 @@ import math
 def encrypt(string, length):
     return ' '.join(string[i:i+length] for i in xrange(0,len(string),length))
 
+## Build a two's complement string representation of a signed number.
+#
+# @param value The number to represent in two's complement.
+# @param bits The number of bits the representation should have. This includes 
+# the sign bit.
 def twos_complement(value, bits):
     if value < 0:
         value = ( 1<<bits ) + value
     formatstring = '{:0%ib}' % bits
     return formatstring.format(value)
 
+## This translates an assembly program to binary code according to the MIPS isa 
+# 
 class Assembler(object):
-
     full_line_comment = re.compile(ur'^\s*#.*')
     inline_comment_regex = re.compile(ur'#.+$')
     label_regex = re.compile(ur'^.*?(?=:)')
@@ -29,6 +35,12 @@ class Assembler(object):
     between_parentheses = re.compile(ur'(?<=\().+(?=\))')
     before_parentheses = re.compile(ur'(?<=\s).+(?=\()')
 
+    ## Constructor creates file handles to the input and output files for the process.
+    #
+    # @param input_file The assembly program to be converted
+    # @param mips_isa_file The instruction type definitions file. This must be a 
+    # JSON formated file where each key should have at least a `type` sub-key.
+    #
     def __init__(self, input_file, mips_isa_file):
         self.file_in = open(input_file, 'r')
         self.file_temp = open(input_file + ".json", 'w')
@@ -79,7 +91,16 @@ class Assembler(object):
         else:
             return int(inst_list[index])
 
-
+    ## Compile the current instructions' machine code representation
+    #
+    # Parse the type of instruction and chose proper instruction format.
+    # Extract proper binary value from each argument based on instruction type
+    # and assemble whole 32 bits of instruction. Finally append byte code to 
+    # binary file.
+    #
+    # @param instruction a list containing the line number and all tokens 
+    # extracted from the assembly code.
+    #
     def build_machine_code(self, instruction):
         try:
             prop = self.misp_isa[instruction[1]]
@@ -164,6 +185,11 @@ class Assembler(object):
         print encrypt(line, 4), '\t', instruction
         self.file_out.write(line + '\n')
 
+    ## Iterate over all lines in the input file and process non-empty, 
+    # non-comments line only.
+    #
+    # Removes the comments from each line and only processes the non-empty lines
+    #
     def process_file(self):
         for line in self.file_in:
             line = line.strip('\n')
@@ -175,12 +201,16 @@ class Assembler(object):
             if line.strip(" "):
                 self.process_line(line)
 
-
+    ## Extract label identifier and tokenize the instruction with name and arguments
+    #
+    # Build a queue of tokenized instructions with the line number of each.
+    # Also creates a map of labels and their target line.
+    # Prior to entering this function, full comments line should have been removed
+    # Only instruction lines should be processed
+    #
+    # @param line The line from the file. 
+    #
     def process_line(self, line):
-        """
-            Prior to entering this function, full comments line should have been removed
-            Only instruction lines should be processed
-        """
         comments = re.search(self.inline_comment_regex, line)
         if comments:
             line = line.replace(comments.group(), "")
