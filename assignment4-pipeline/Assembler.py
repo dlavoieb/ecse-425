@@ -4,6 +4,7 @@ __author__ = 'David Lavoie-Boutin'
 import re
 import json
 import math
+import sys
 
 ## Add a space at periodic intervals 
 #
@@ -236,6 +237,10 @@ class Assembler(object):
         print "Program terminated"
 
 if __name__ == '__main__':
-    assembler = Assembler("./test.asm", "./mips-isa.json")
-    assembler.run()
+    try:
+        assembler = Assembler(sys.argv[1], "./mips-isa.json")
+        assembler.run()
+    except IndexError:
+        print("File missing. Try again:\n\n./Assembler.py [file]")
+        quit(1)
     
