@@ -15,8 +15,8 @@ entity decode is
         write_register_data : in std_logic_vector(31 downto 0);
 
         alu_op : out std_logic_vector (3 downto 0); -- ALU function code
-        alu_arg_1 : out std_logic_vector(31 downto 0) ; -- ALU first element
-        alu_arg_2 : out std_logic_vector(31 downto 0) ; -- ALU second element
+        reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
+        reg2_out : out std_logic_vector(31 downto 0) ; -- ALU second element
 
         immediate_out : out std_logic_vector (31 downto 0); -- sign extended immediate value
         dest_register_address : out std_logic_vector (reg_adrsize-1 downto 0); -- destination register address for write back stage
@@ -33,14 +33,11 @@ end entity ; -- decode
 
 architecture arch of decode is
 
-signal reg1_out : std_logic_vector (31 downto 0); -- first register data content
-signal reg2_out : std_logic_vector (31 downto 0); -- second register data content
-
 signal r1 : std_logic_vector(reg_adrsize-1 downto 0);
 signal r2 : std_logic_vector(reg_adrsize-1 downto 0);
-signal opcode : std_logic_vector(5 downto 0);
-signal rs : std_logic_vector(4 downto 0);
-signal rt : std_logic_vector(4 downto 0);
+--signal opcode : std_logic_vector(5 downto 0);
+--signal rs : std_logic_vector(4 downto 0);
+--signal rt : std_logic_vector(4 downto 0);
 signal zero16b : std_logic_vector(15 downto 0) := (others => '0');
 signal shifter_input : std_logic_vector(31 downto 0) ;
 signal shifter_output : std_logic_vector(31 downto 0) ;
@@ -92,8 +89,6 @@ begin
             store <='0';
             
             --alu operators signals
-            alu_arg_1 <= reg1_out; -- defaults to registers output
-            alu_arg_2 <= reg2_out;
             use_pc <= '0';
             
             if opcode = "000000" then
