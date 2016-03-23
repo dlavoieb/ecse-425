@@ -3,7 +3,6 @@ use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.memory_arbiter_lib.all;
-use work.PC.all
 
 entity fetch is
   port (
@@ -26,15 +25,15 @@ architecture arch of fetch is
     SIGNAL im_data        : STD_LOGIC_VECTOR(MEM_DATA_WIDTH-1 downto 0)   := (others => 'Z');
     SIGNAL im_initialize  : STD_LOGIC                                     := '0';
 
-    SIGNAL pc_int : std_logic_vector(31 downto 0) := (others => "0") ;
-    SIGNAL pc_out_internal : std_logic_vector(31 downto 0) := (others => "0") ;
+    SIGNAL pc_int : std_logic_vector(31 downto 0) := (others => '0') ;
+    SIGNAL pc_out_internal : std_logic_vector(31 downto 0) := (others => '0') ;
 
 begin
     instruction_memory : ENTITY work.Main_Memory
     GENERIC MAP (
         Num_Bytes_in_Word   => NUM_BYTES_IN_WORD,
         Num_Bits_in_Byte    => NUM_BITS_IN_BYTE,
-        Read_Delay          => 0, 
+        Read_Delay          => 0,
         Write_Delay         => 0
     )
     PORT MAP (
@@ -71,8 +70,8 @@ begin
             if pc_sel = '1' then
                 pc_out_internal <= pc_in;
             else
-                pc_out_internal <= std_logic_vector(unsigned(pc_int) + 4) when '1',
-            end if ;    
+                pc_out_internal <= std_logic_vector(unsigned(pc_int) + 4);
+            end if ;
         end if ;
     end process ; -- fetch_cycle
 end architecture ; -- arch
