@@ -9,5 +9,8 @@ PACKAGE memory_arbiter_lib IS
     CONSTANT NUM_BYTES_IN_WORD  : INTEGER := 4;
     CONSTANT NUM_BITS_IN_BYTE   : INTEGER := 8;
     CONSTANT MEM_DATA_WIDTH         : INTEGER := NUM_BYTES_IN_WORD * NUM_BITS_IN_BYTE;
+	constant reg_adrsize : integer := 5;
+	constant reg_depth : integer := 32;
+
 
 END memory_arbiter_lib;
