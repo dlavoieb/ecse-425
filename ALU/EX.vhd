@@ -15,7 +15,7 @@ RDAO	: out STD_LOGIC_VECTOR (31 downto 0);
 FCode: in std_logic_vector(3 downto 0);
 
 
-PCEI: in std_logic_vector( 31 downto 0);
+PCEI: in std_logic_vector(31 downto 0);
 PCEO: out std_logic_vector(31 downto 0);
 
 clock   : in  STD_LOGIC;
@@ -92,7 +92,7 @@ mux2: mux41 port map(SEL20, SEL21, A2, B2, C2, D2, X2);
 
 
 
-RDAO<=RDAI;
+
 
 --MUX 1
 A1<= RSD;
@@ -128,6 +128,8 @@ BT <= '1'  when BE = "01" and (RSD=RTD) else
      '1' when BE = "11" else
      '0';
 
+PCEO<=PCEI;
+RDAO<=RDAI;
 
 end foo;
 

@@ -14,9 +14,9 @@ end mux41;
 architecture Behavioral of mux41 is
 begin
     X <= 
-    A when (SEL0= '0' AND SEL1= '0') else
-    B when (SEL0= '0' AND SEL1= '1') else
-    C when (SEL0= '1' AND SEL1= '0') else
-    D when (SEL0= '1' AND SEL1= '1') else
+    A when (SEL1= '0' AND SEL0= '0') else
+    B when (SEL1= '0' AND SEL0= '1') else
+    C when (SEL1= '1' AND SEL0= '0') else
+    D when (SEL1= '1' AND SEL0= '1') else
     (others => '0');
 end Behavioral;
