@@ -42,6 +42,8 @@ signal opcode : std_logic_vector(5 downto 0);
 signal rs : std_logic_vector(4 downto 0);
 signal rt : std_logic_vector(4 downto 0);
 signal zero16b : std_logic_vector(15 downto 0) := (others => '0');
+signal shifter_input : std_logic_vector(31 downto 0) ;
+signal shifter_output : std_logic_vector(31 downto 0) ;
 
 begin
 
@@ -59,6 +61,13 @@ begin
         port2_out => reg2_out -- : out std_logic_vector(31 downto 0);  -- Read port 2
 
     );
+
+    shifter : ENTITY work.shifter
+    PORT MAP (
+        input_vector => shifter_input,
+        output_vector => shifter_output,
+        shamt => 2
+        );
 
     decode_stage : process( clk )
 
@@ -179,21 +188,24 @@ begin
                         r2 <= "00000";
                 end case ;
 
-            -- todo: place jump and jal instruction decode here
-            elsif opcode = 000010 then
+            elsif opcode = "000010" then
                 -- j    
-                shamt := instruction_in(25 downto 0);
-                immediate_out <= std_logic_vector(resize(signed(shamt), immediate_out'length));
+                shifter_input <= std_logic_vector(resize(signed(instruction_in(25 downto 0)), immediate_out'length));
+                immediate_out <= shifter_output;
                 use_pc <= '1';
                 use_imm <= '1';
                 branch_ctl <= "11";
 
             elsif opcode = "000011" then
                 -- jal
-                
+                shifter_input <= std_logic_vector(resize(signed(instruction_in(25 downto 0)), immediate_out'length));
+                immediate_out <= shifter_output;
+                use_pc <= '1';
+                use_imm <= '1';
+                branch_ctl <= "11";
+                -- TODO: indicate the need to store current PC
 
             else
-
                 dest_register_address <= rt;
                 use_imm <= '1';
                 case( opcode ) is
@@ -257,12 +269,17 @@ begin
                     when "000100" =>
                         -- beq
                         alu_op <= "0000";
-                        branch_ctl <= "01";    
+                        branch_ctl <= "01";
+                        shifter_input <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length));
+                        immediate_out <= shifter_output;
+                 
 
                     when "000101" =>
                         -- bne
                         alu_op <= "0000";
                         branch_ctl <= "10";
+                        shifter_input <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length));
+                        immediate_out <= shifter_output;
 
                     when others =>
                         null;
