@@ -24,11 +24,11 @@ Signal ZT: std_logic;
 begin 
 
 
-Bob : process(clock ) 
+Bob : process(RS,RT,FC) 
 Variable long : std_logic_vector(63 downto 0);
 begin  
 
-if rising_edge(clock) then
+
 
 ZT<='0';
 c <= empty;
@@ -101,7 +101,7 @@ c <= empty;
 
 end case;
 
-end if;
+
 
 end process; -- Bob
 

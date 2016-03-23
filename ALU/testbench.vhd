@@ -49,7 +49,7 @@ signal aIMM   : STD_LOGIC_VECTOR (31 downto 0);
 
 signal aRDD   :  STD_LOGIC_VECTOR (31 downto 0);
 signal aRDAI    :  STD_LOGIC_VECTOR (31 downto 0);
-signal aRDAO    : ] STD_LOGIC_VECTOR (31 downto 0);
+signal aRDAO    :  STD_LOGIC_VECTOR (31 downto 0);
 
 signal aFCode:  std_logic_vector(3 downto 0);
 
@@ -58,6 +58,7 @@ signal aPCEI:  std_logic_vector( 31 downto 0);
 signal aPCEO:  std_logic_vector(31 downto 0);
 
 signal aclock   :  STD_LOGIC;
+signal sclock   :  STD_LOGIC;
 
 signal aD1Sel1  : STD_LOGIC;
 signal aD1Sel0   :   STD_LOGIC;
@@ -68,20 +69,23 @@ signal aD2Sel1 :  STD_LOGIC;
 signal aBE:  std_logic_vector(1 downto 0);
 signal aBT: std_logic;
 
-signal aZERO:  std_logic
+signal aZERO:  std_logic;
+
 
 CONSTANT clk_period : time := 1 ns;
 
 begin
 
   -- Connect DUT
-  DUT: EX port map(aRSD, aRTD, aIMM, aRDD, aRDAI, aRDAO, aFCode, aPCEO, aPCEI, aclock, aD2Sel1, aD2Sel0, aD1Sel0, aD1Sel1, aBT, aBE, aZERO);
+  DUT: EX port map(aRSD, aRTD, aIMM, aRDD, aRDAI, aRDAO, aFCode, aPCEI, aPCEO, aclock, aD1Sel1, aD1Sel0, aD2Sel0, aD2Sel1, aBE, aBT, aZERO);
 
 
   clk_process : PROCESS
 BEGIN
+  aclock <= '1';
   sclock <= '1';
   WAIT FOR clk_period/2;
+  aclock <= '0';
   sclock <= '0';
   WAIT FOR clk_period/2;
 END PROCESS;
@@ -94,58 +98,269 @@ END PROCESS;
     aIMM <= (others => '0');
 
     aRDAI <= (others => '0');
-        aFCode <= (others => '0');
+    aFCode <= (others => '0');
 
-    aPCEO <= (others => '0');
     aPCEI <= (others => '0');
 
-    aclock <= sclock;
+    
 
-    aD2Sel1 <= (others => '0');
-    aD2Sel0 <= (others => '0');
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '0';
 
-    aD1Sel1 <= (others => '0');
-    aD1Sel0 <= (others => '0');
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '0';
 
-    aBT <= (others => '0');
     aBE <= (others => '0');
 
-    aZERO <= (others => '0');
 
 
    
     wait for 1 ns;
    
-
+      -- SIMPLE ADD OPERATION DEFAULT MUX SELECTOR 
    aRSD <= "00000000000000000000000000111000";
     aRTD <= "00000000000000100000001000111000";
     aIMM <= (others => '0');
 
-    aRDD <= (others => '0');
+    
     aRDAI <= (others => '0');
-    aRDAO <= (others => '0');
+    
 
-    aFCode <= (others => '0');
+    aFCode <= ("0000");
 
-    aPCEO <= (others => '0');
+   
     aPCEI <= (others => '0');
 
-    aclock <= sclock;
 
-    aD2Sel1 <= (others => '0');
-    aD2Sel0 <= (others => '0');
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '0';
 
-    aD1Sel1 <= (others => '0');
-    aD1Sel0 <= (others => '0');
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '0';
 
-    aBT <= (others => '0');
+    
     aBE <= (others => '0');
 
-    aZERO <= (others => '0');
+   
    
     wait for 1 ns;
 
- 
+
+         -- SIMPLE ADD OPERATION IMM D2 MUX SELECTOR 
+   aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000100000001000111000";
+    aIMM <= "00000000000000101001001000111001";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= (others => '0');
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '0';
+
+    
+    aBE <= (others => '0');
+
+   
+   
+    wait for 1 ns;
+
+         -- SIMPLE ADD OPERATION IMM D2 and PCEI D1 MUX SELECTOR 
+   aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000100000001000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '1';
+
+    
+    aBE <= (others => '0');
+
+   
+   
+    wait for 1 ns;
+
+
+             -- BNE (Taken)
+    aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000000000010000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '1';
+
+    
+    aBE <= "10";
+
+   
+   
+    wait for 1 ns;
+
+             --BNE ( Not Taken)
+    aRSD <= "00000000000000100000001000111000";
+    aRTD <= "00000000000000100000001000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '0';
+
+    
+    aBE <= "10";
+
+   
+   
+    wait for 1 ns;
+
+             -- BE (Taken)
+    aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000000000000000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '1';
+
+    
+    aBE <= "01";
+
+   
+   
+    wait for 1 ns;
+
+             -- BE ( Not Taken)
+    aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000100000001000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '1';
+
+    
+    aBE <= "01";
+
+   
+   
+    wait for 1 ns;
+
+                 -- JUMP
+    aRSD <= "00000000000000000000000000111000";
+    aRTD <= "00000000000000100000001000111000";
+    aIMM <= "00000000000000101001001000111000";
+
+    
+    aRDAI <= (others => '0');
+    
+
+    aFCode <= ("0000");
+
+   
+    aPCEI <= "00000000000000110101001100111010";
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '1';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '1';
+
+    
+    aBE <= "11";
+
+   
+   
+    wait for 1 ns;
+
+    aRSD <= (others => '0');
+    aRTD <= (others => '0');
+    aIMM <= (others => '0');
+
+    aRDAI <= (others => '0');
+    aFCode <= (others => '0');
+
+    aPCEI <= (others => '0');
+
+
+
+    aD2Sel1 <= '0';
+    aD2Sel0 <= '0';
+
+    aD1Sel1 <= '0';
+    aD1Sel0 <= '0';
+
+    aBE <= (others => '0');
 
     
 
@@ -153,9 +368,7 @@ END PROCESS;
 
       -- Clear inputs
    
-    sRS <= (others => '0');
-    sRT <= (others => '0');
-    sFC <= (others => '0');
+    
 
     wait;
   end process;
