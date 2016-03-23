@@ -14,7 +14,10 @@ vlib work
 
 ;# Compile components if any
 vcom ALU.vhd
+vcom mux41.vhd
 vcom testbench.vhd
+vcom EX.vhd
+
 
 ;# Start simulation
 vsim testbench
