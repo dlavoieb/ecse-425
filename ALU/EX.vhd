@@ -28,6 +28,11 @@ D2Sel1 : in  STD_LOGIC;
 
 BE: in std_logic_vector(1 downto 0);
 BT: out std_logic;
+MAI: in std_logic_vector(1 downto 0);
+MAO: out std_logic_vector(1 downto 0);
+
+RAI: in std_logic_vector(1 downto 0);
+RAO: out std_logic_vector(1 downto 0);
 
 ZERO: out std_logic
 );
@@ -130,6 +135,8 @@ BT <= '1'  when BE = "01" and (RSD=RTD) else
 
 PCEO<=PCEI;
 RDAO<=RDAI;
+MAO<=MAI;
+RAO<=RAI;
 
 end foo;
 

@@ -36,6 +36,8 @@ D2Sel1 : in  STD_LOGIC;
 
 BE: in std_logic_vector(1 downto 0);
 BT: out std_logic;
+MAI: in std_logic_vector(1 downto 0);
+MAO: out std_logic_vector(1 downto 0);
 
 ZERO: out std_logic
 

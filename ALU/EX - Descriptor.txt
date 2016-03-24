@@ -12,14 +12,18 @@ PCEI - Program Counter Value In 32 bits
 D1Sel1 , D1Sel0 - ALU Operand 1 Data MUX Control Signals 1 bit each
 D2Sel1 , D2Sel0 - ALU Operand 2 Data MUX Control Signals 1 bit each
 BE - Branch Indicator 2 bits
+MAI - Memory Access Indicator In 2 bits
+RAI - Register Access Indicator In 2 bits
 
 
 
 OUTPUTS
 
 RDD - ALU Operation Result 32 bits
-PCEO - Program Counter Value OUT 32 bits
+PCEO - Program Counter Value Out 32 bits
 BT - Branch Taken Indicator 1 bit
 Zero - ALU Equals Indicator 1 bit
 RDAO - RD Regsiter Address OUT 5 bits
+MAO - Memory Access Indicator OUT 2 bits
+RAI - Register Access Indicator In 2 bits
 
