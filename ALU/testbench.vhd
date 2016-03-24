@@ -17,8 +17,8 @@ IMM   : in  STD_LOGIC_VECTOR (31 downto 0);
 
 
 RDD   : out  STD_LOGIC_VECTOR (31 downto 0);
-RDAI    : in STD_LOGIC_VECTOR (31 downto 0);
-RDAO    : out STD_LOGIC_VECTOR (31 downto 0);
+RDAI    : in STD_LOGIC_VECTOR (4 downto 0);
+RDAO    : out STD_LOGIC_VECTOR (4 downto 0);
 
 FCode: in std_logic_vector(3 downto 0);
 
@@ -48,8 +48,8 @@ signal aIMM   : STD_LOGIC_VECTOR (31 downto 0);
 
 
 signal aRDD   :  STD_LOGIC_VECTOR (31 downto 0);
-signal aRDAI    :  STD_LOGIC_VECTOR (31 downto 0);
-signal aRDAO    :  STD_LOGIC_VECTOR (31 downto 0);
+signal aRDAI    :  STD_LOGIC_VECTOR (4 downto 0);
+signal aRDAO    :  STD_LOGIC_VECTOR (4 downto 0);
 
 signal aFCode:  std_logic_vector(3 downto 0);
 

@@ -1,0 +1,25 @@
+EX - Descriptor
+
+INPUTS
+
+clock - 1 bit
+RSD - RS Register Data 32 bits
+RTD - RT Register Data 32 bits
+IMM - Immediate 32 bits
+RDAI - RD Regsiter Address In 5 bits
+FCode - Function Code 4 bits
+PCEI - Program Counter Value In 32 bits
+D1Sel1 , D1Sel0 - ALU Operand 1 Data MUX Control Signals 1 bit each
+D2Sel1 , D2Sel0 - ALU Operand 2 Data MUX Control Signals 1 bit each
+BE - Branch Indicator 2 bits
+
+
+
+OUTPUTS
+
+RDD - ALU Operation Result 32 bits
+PCEO - Program Counter Value OUT 32 bits
+BT - Branch Taken Indicator 1 bit
+Zero - ALU Equals Indicator 1 bit
+RDAO - RD Regsiter Address OUT 5 bits
+
