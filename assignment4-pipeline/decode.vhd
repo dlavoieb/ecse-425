@@ -39,8 +39,6 @@ signal r2 : std_logic_vector(reg_adrsize-1 downto 0);
 --signal rs : std_logic_vector(4 downto 0);
 --signal rt : std_logic_vector(4 downto 0);
 signal zero16b : std_logic_vector(15 downto 0) := (others => '0');
-signal shifter_input : std_logic_vector(31 downto 0) ;
-signal shifter_output : std_logic_vector(31 downto 0) ;
 
 begin
 
@@ -58,13 +56,6 @@ begin
         port2_out => reg2_out -- : out std_logic_vector(31 downto 0);  -- Read port 2
 
     );
-
-    shifter : ENTITY work.shifter
-    PORT MAP (
-        input_vector => shifter_input,
-        output_vector => shifter_output,
-        shamt => 2
-        );
 
     decode_stage : process( clk )
 
@@ -88,14 +79,15 @@ begin
             load <= '0';
             store <='0';
             
+            r1 <= rs;
+            r2 <= rt;
+
             --alu operators signals
             use_pc <= '0';
             
             if opcode = "000000" then
                 -- r-type instruction
                 dest_register_address <= rd;
-                r1 <= rs;
-                r2 <= rt;
                 use_imm <= '0';
 
                 case( funct ) is
@@ -185,16 +177,14 @@ begin
 
             elsif opcode = "000010" then
                 -- j    
-                shifter_input <= std_logic_vector(resize(signed(instruction_in(25 downto 0)), immediate_out'length));
-                immediate_out <= shifter_output;
+                immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
                 use_pc <= '1';
                 use_imm <= '1';
                 branch_ctl <= "11";
 
             elsif opcode = "000011" then
                 -- jal
-                shifter_input <= std_logic_vector(resize(signed(instruction_in(25 downto 0)), immediate_out'length));
-                immediate_out <= shifter_output;
+                immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
                 use_pc <= '1';
                 use_imm <= '1';
                 branch_ctl <= "11";
@@ -265,16 +255,16 @@ begin
                         -- beq
                         alu_op <= "0000";
                         branch_ctl <= "01";
-                        shifter_input <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length));
-                        immediate_out <= shifter_output;
+                        use_pc <= '1';
+                        immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
                  
 
                     when "000101" =>
                         -- bne
                         alu_op <= "0000";
                         branch_ctl <= "10";
-                        shifter_input <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length));
-                        immediate_out <= shifter_output;
+                        immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
+                        use_pc <= '1';
 
                     when others =>
                         null;
