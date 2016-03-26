@@ -46,12 +46,6 @@ architecture behavior of MEM is
   begin
       register_access_out <= register_access_in;  --Pass through reg access signal
       if rising_edge(clk) then
-          if mem_access_read = '1' then
-              dm_address <= add_in;
-              dm_re <= '1'
-          elsif mem_access_write = '1'
-          end if ;
-          ---------
           CASE state IS
             WHEN idle=>
               dm_initialize <= '0';
