@@ -8,11 +8,11 @@ use work.memory_arbiter_lib.all;
 entity decode is
     port (
         clk : in std_logic;
-        instruction_in : in std_logic_vector (31 downto 0);
+        instruction_in : in std_logic_vector (31 downto 0); -- instruction from IF
 
-        write_enable : in std_logic;
-        write_register_address : in std_logic_vector(reg_adrsize-1 downto 0);
-        write_register_data : in std_logic_vector(31 downto 0);
+        write_enable : in std_logic; -- from write back stage
+        write_register_address : in std_logic_vector(reg_adrsize-1 downto 0); -- from write back stage
+        write_register_data : in std_logic_vector(31 downto 0); -- from write back stage
 
         alu_op : out std_logic_vector (3 downto 0); -- ALU function code
         reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
