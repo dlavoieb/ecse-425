@@ -1,49 +1,45 @@
 proc AddWaves {} {
     ;#Add waves we're interested in to the Wave window
-    add wave -position end sim:/PROC/clock
+    add wave -position end -radix binary sim:/PROC/clock
     add wave -position end  sim:/PROC/inst
-    add wave -position end  sim:/PROC/we
+    add wave -position end -radix binary sim:/PROC/we
     add wave -position end  sim:/PROC/writeadd
     add wave -position end  sim:/PROC/writedat
-    add wave -position end  sim:/PROC/resetn
-    add wave -position end  sim:/PROC/RDDO
-    add wave -position end  sim:/PROC/RDAO
+    add wave -position end -radix binary sim:/PROC/reset_n
+    add wave -position end  sim:/PROC/RDDEO
+    add wave -position end  sim:/PROC/RDAOO
     add wave -position end  sim:/PROC/PCEO
-    add wave -position end  sim:/PROC/BT
-    add wave -position end  sim:/PROC/MAWEO
-    add wave -position end  sim:/PROC/MAREO
-    add wave -position end  sim:/PROC/RAEO
-    add wave -position end  sim:/PROC/ZEROEO
+    add wave -position end -radix binary sim:/PROC/BT
+    add wave -position end  sim:/PROC/MAWO
+    add wave -position end  sim:/PROC/MARO
+    add wave -position end  sim:/PROC/RAO
+    add wave -position end -radix binary sim:/PROC/ZEROEO
 
-    add wave -position end  sim:/PROC/clk
+    add wave -position end -radix binary sim:/PROC/clk
     add wave -position end  sim:/PROC/instBuffer
     add wave -position end  sim:/PROC/WEBuffer
     add wave -position end  sim:/PROC/WRABuffer
     add wave -position end  sim:/PROC/WRDBuffer
     add wave -position end  sim:/PROC/RSTBuffer
 
-    add wave -position end  sim:/PROC/alu_opO
-    add wave -position end  sim:/PROC/reg1_outO
-    add wave -position end  sim:/PROC/reg2_outO
-    add wave -position end  sim:/PROC/immediate_outO
-    add wave -position end  sim:/PROC/dest_register_addressO 
-    add wave -position end  sim:/PROC/use_immO
+    add wave -position end -radix binary sim:/PROC/alu_opO
+    add wave -position end -radix binary sim:/PROC/reg1_outO
+    add wave -position end -radix binary sim:/PROC/reg2_outO
+    add wave -position end -radix binary sim:/PROC/immediate_outO
+    add wave -position end  sim:/PROC/dest_register_addressO
+    add wave -position end -radix binary sim:/PROC/use_immO
 
     add wave -position end  sim:/PROC/RSDBuffer
-    add wave -position end  sim:/PROC/RTDBuffer  
-    add wave -position end  sim:/PROC/IMMBuffer
+    add wave -position end  sim:/PROC/RTDBuffer
+    add wave -position end -radix binary sim:/PROC/IMMBuffer
     add wave -position end  sim:/PROC/RDAIBuffer
-    add wave -position end  sim:/PROC/FCodeBuffer
-    add wave -position end  sim:/PROC/D1Sel0Buffer
-    add wave -position end  sim:/PROC/D2Sel0Buffer 
+    add wave -position end -radix binary sim:/PROC/FCodeBuffer
+    add wave -position end -radix binary sim:/PROC/D1Sel0Buffer
+    add wave -position end -radix binary sim:/PROC/D2Sel0Buffer
 
-
-    
-    
-    
 }
 ;
-proc GenerateCPUClock {} { 
+proc GenerateCPUClock {} {
     force -deposit /PROC/clock 0 0 ns, 1 0.5 ns -repeat 1 ns
 }
 
@@ -53,24 +49,27 @@ proc Init {} {
 
     #Compile
 
-vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
-vcom shifter.vhd
-vcom Register.vhd
-vcom PC.vhd
-vcom decode.vhd
-vcom ALU.vhd
-vcom mux41.vhd
-vcom EX.vhd
-vcom PROC.vhd
+  vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
+  vcom ../assignment3-mem_arbiter/Memory_in_Byte.vhd
+  vcom ../assignment3-mem_arbiter/Main_Memory.vhd
+  vcom shifter.vhd
+  vcom Register.vhd
+  vcom PC.vhd
+  vcom decode.vhd
+  vcom ALU.vhd
+  vcom mux41.vhd
+  vcom EX.vhd
+  vcom MEM.vhd
+  vcom PROC.vhd
 
     ; # Start Simulation
 
-    vsim PROC
-    
+    vsim -t ps PROC
+
     AddWaves
     GenerateCPUClock
 
-    force -deposit /PROC/resetn 0 0 ns, 1 1 ns 
+    force -deposit /PROC/reset_n 0 0 ns, 1 1 ns
     run 1 ns
 
 

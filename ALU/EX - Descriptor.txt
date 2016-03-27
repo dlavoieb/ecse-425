@@ -19,11 +19,10 @@ RAI - Register Access Indicator In 2 bits
 
 OUTPUTS
 
-RDD - ALU Operation Result 32 bits
+RDD - ALU Operation Result 32 bits.
 PCEO - Program Counter Value Out 32 bits - not useful atm
-BT - Branch Taken Indicator 1 bit
+BT - Branch Taken Indicator 1 bit.
 Zero - ALU Equals Indicator 1 bit - not useful atm
-RDAO - RD Regsiter Address Out 5 bits
-MAO - Memory Access Indicator Out 2 bits
-RAO - Register Access Indicator Out 2 bits
-
+RDAO - RD Regsiter Address Out 5 bits.
+MAO - Memory Access Indicator Out 2 bits.
+RAO - Register Access Indicator Out 2 bits.
