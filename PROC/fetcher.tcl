@@ -30,7 +30,7 @@ proc GenerateCPUClock {} {
 
 proc loadInstructions {} {
   force -deposit /fetch/instruction_memory/initialize 0 0 ns, 1 1 ns, 0 2 ns
-  run 5 ns ;#Force signals to update right away
+  run 2 ns ;#Force signals to update right away
 }
 
 ;#This function compiles the fetch stage and its components.
@@ -42,9 +42,9 @@ proc InitFetch {} {
   vlib work
 
   ;#Compile the fetch stage and its subcomponents
-  #vcom Memory_in_Byte.vhd
-  vcom memory_arbiter_lib.vhd
-  vcom Main_Memory.vhd
+  vcom ../assignment3-mem_arbiter/Memory_in_Byte.vhd
+  vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
+  vcom ../assignment3-mem_arbiter/Main_Memory.vhd
   vcom PC.vhd
   vcom fetch.vhd
 
@@ -56,10 +56,8 @@ proc InitFetch {} {
 	AddWaves
 
   force -deposit /fetch/n_reset 0 0 ns, 1 1 ns
-  force -deposit /fetch/pc_out 0 0
-  force -deposit /fetch/pc_in 0 0
+  force -deposit /fetch/pc_enable 0 0 ns
   force -deposit /fetch/pc_sel 0 0
-  force -deposit /fetch/instruction_out 0 0
 
   ;#Generate a CPU clock
 	GenerateCPUClock

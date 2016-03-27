@@ -10,6 +10,7 @@ entity fetch is
     pc_out : out std_logic_vector (31 downto 0);
     pc_in : in std_logic_vector (31 downto 0);
     pc_sel : in std_logic;
+    pc_enable : in std_logic;
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
     n_reset : in std_logic
   ) ;
@@ -55,23 +56,22 @@ begin
         n_rst   => n_reset,
         pc_in   => pc_out_internal,
         pc_out  => pc_int,
-        enable  => '1'
+        enable  => pc_enable
     );
 
+    pc_out <= pc_out_internal;
     im_address <= to_integer(unsigned(pc_int));
     im_we <= '0';
     im_wr_done <= 'Z';
     instruction_out <= im_data;
     im_re <= '1';
 
-    fetch_cycle : process( clk )
+    fetch_cycle : process( pc_in, pc_int, pc_sel )
     begin
-        if rising_edge(clk) then
-            if pc_sel = '1' then
-                pc_out_internal <= pc_in;
-            else
-                pc_out_internal <= std_logic_vector(unsigned(pc_int) + 4);
-            end if ;
+        if pc_sel = '1' then
+            pc_out_internal <= pc_in;
+        else
+            pc_out_internal <= std_logic_vector(unsigned(pc_int) + 4);
         end if ;
     end process ; -- fetch_cycle
 end architecture ; -- arch

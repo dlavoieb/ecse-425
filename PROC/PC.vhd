@@ -24,6 +24,5 @@ begin
         temp := pc_in;
     end if ;
     pc_out <= temp;
-
 end process ; -- program_counter
 end architecture ; -- arch
