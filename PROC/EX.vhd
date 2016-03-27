@@ -111,29 +111,33 @@ if rising_edge(clock) then
 		D1<= (others => '0');
 		SEL11<= D1Sel1;
 		SEL10<= D1Sel0;
-		sRS<=X1 ;
+		
 
 		--MUX2
 		A2<= RTD;
 		B2<= IMM;
 		C2<= (others => '0');
 		D2<= (others => '0');
-		SEL21<= D2Sel1;
-		SEL20<= D2Sel0;
-		sRT<=X2 ;
+		SEL21<= D2Sel1; --0
+		SEL20<= D2Sel0; --1
+		
 
 		--ALU1
 		sclock<= clock;
 		sFC<= FCode;
-		RDD<= sRES;
-		ZERO<=sZERO;
+		
 
 
 		--BranchSelector
-		BT <= '1'  when BE = "01" and (RSD=RTD) else 
-		     '1' when BE = "10" and not (RSD=RTD) else 
-		     '1' when BE = "11" else
-		     '0';
+		if (BE="01" and (RSD=RTD)) then
+		BT<='1';
+		elsif (BE = "10" and (not (RSD=RTD))) then
+		BT<='1';
+		elsif (BE="11") then
+		BT<='1';
+		else
+		BT<='0';
+		end if;
 
 		--Forwarding signals
 		PCEO<=PCEI;
@@ -142,15 +146,20 @@ if rising_edge(clock) then
 		MAWO<=MAWI;
 
 		--WB Stage Control Signal generation
-		if FCode="0111" or FCode="0010" then
-			RA<='0'
+		if (FCode="0111" or FCode="0010") then
+			RA<='0';
 			else 
-			RA<='1'
+			RA<='1';
 		end if;
 
 end if;
 
 end process;
+
+sRT<=X2 ;
+sRS<=X1 ;
+RDD<= sRES;
+ZERO<=sZERO;
 
 end foo;
 
