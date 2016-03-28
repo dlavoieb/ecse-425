@@ -7,17 +7,22 @@ proc AddWaves {} {
 
 	;#Add the following signals to the Waves window
 	add wave -position end  -radix binary sim:/fetch/clk
-	add wave -position end  -radix binary sim:/fetch/n_reset
+  add wave -position end  -radix binary sim:/fetch/n_reset
+	add wave -position end  -radix binary sim:/fetch/pc_enable
 
   ;#These signals will be contained in a group named "Port 1"
-	add wave -group "Fetch"  -radix binary sim:/fetch/pc_out\
-                            -radix binary sim:/fetch/pc_in\
+	add wave -group "Fetch"  -radix unsigned sim:/fetch/pc_out\
+                            -radix unsigned sim:/fetch/pc_in\
                             -radix binary sim:/fetch/pc_sel\
                             -radix binary sim:/fetch/instruction_out
 
   ;#These signals will be contained in a group named "Main Memory"
-  add wave -group "Main Memory" -radix binary sim:/fetch/instruction_memory/initialize
+  add wave -group "Main Memory" -radix binary sim:/fetch/instruction_memory/initialize\
+                -radix unsigned sim:/fetch/im_address\
+                sim:/fetch/im_re\
+                sim:/fetch/im_rd_ready
 
+ 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
 	WaveRestoreZoom {0 ns} {8 ns}
@@ -26,6 +31,12 @@ proc AddWaves {} {
 ;#Generates a clock of period 1 ns on the clk input pin of the fetch stage.
 proc GenerateCPUClock {} {
 	force -deposit /fetch/clk 0 0 ns, 1 0.5 ns -repeat 1 ns
+}
+
+proc assert condition {
+  if {![uplevel 1 expr $condition]} {
+    return -code error "assertion failed: $condition"
+  }
 }
 
 proc loadInstructions {} {
@@ -63,4 +74,20 @@ proc InitFetch {} {
 	GenerateCPUClock
 
   run 1 ns
+  loadInstructions
+  run 1 ns
+
+  force -deposit /fetch/pc_enable 1 0
+  run 5 ns
+   # DO STUFF
 }
+
+InitFetch
+
+force -deposit /fetch/pc_in "00000000000000000000000000110000" 0
+force -deposit /fetch/pc_sel 1 0 ns, 0 1 ns 
+echo [exa /fetch/pc_out]
+# assert {[exa /fetch/pc_out] == "00000000000000000000000000010100" }
+run 1 ns
+# assert {[exa /fetch/pc_out] == "00000000000000000000000000100000"}
+run 3 ns 
