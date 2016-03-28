@@ -24,6 +24,7 @@ entity decode is
         load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
         store : out std_logic; -- indicates if the mem stage should use the result of alu as address for store operation
         use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
+        branch_taken : out std_logic; -- selector for IF stage pc source mux
      
         n_reset : in std_logic
     ) ;
@@ -38,7 +39,7 @@ signal immediate_out_internal : std_logic_vector (31 downto 0); -- sign extended
 
 signal reg1_out_internal : std_logic_vector(31 downto 0) ; -- ALU first element
 signal reg2_out_internal : std_logic_vector(31 downto 0) ; -- ALU second element
-signal branch_taken : std_logic;
+signal branch_taken_internal : std_logic;
 signal branch_ctl : std_logic_vector(1 downto 0) ; -- control flow signal for taking branches and jumps
 signal offset : std_logic_vector(31 downto 0) ; 
 signal branch_dest : std_logic_vector(31 downto 0) ; 
@@ -65,7 +66,7 @@ begin
     PORT MAP (
         value1 => reg1_out_internal,
         value2 => reg2_out_internal,
-        taken => branch_taken,
+        taken => branch_taken_internal,
         ctl => branch_ctl
     );
 
@@ -307,8 +308,9 @@ begin
     end process ; -- dest
 
     branch_dest <= std_logic_vector(signed(offset) + signed(pc_in));
+    branch_taken <= branch_taken_internal;
 
-    with branch_taken select pc_out <=
+    with branch_taken_internal select pc_out <=
         branch_dest when '1',
         pc_in when others;
 
