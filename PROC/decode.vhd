@@ -6,6 +6,8 @@ use work.memory_arbiter_lib.all;
 entity decode is
     port (
         clk : in std_logic;
+        pc_in : in std_logic_vector(31 downto 0) ;
+        pc_out : out std_logic_vector(31 downto 0) ;
         instruction_in : in std_logic_vector (31 downto 0);
 
         write_enable : in std_logic;
@@ -22,9 +24,7 @@ entity decode is
         load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
         store : out std_logic; -- indicates if the mem stage should use the result of alu as address for store operation
         use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
-        use_pc : out std_logic; -- indicate if alu should use value of pc for input 1
-
-        branch_ctl : out std_logic_vector(1 downto 0) ; -- control flow signal for taking branches and jumps
+     
         n_reset : in std_logic
     ) ;
 end entity ; -- decode
@@ -33,10 +33,16 @@ architecture arch of decode is
 
 signal r1 : std_logic_vector(reg_adrsize-1 downto 0);
 signal r2 : std_logic_vector(reg_adrsize-1 downto 0);
---signal opcode : std_logic_vector(5 downto 0);
---signal rs : std_logic_vector(4 downto 0);
---signal rt : std_logic_vector(4 downto 0);
 signal zero16b : std_logic_vector(15 downto 0) := (others => '0');
+signal immediate_out_internal : std_logic_vector (31 downto 0); -- sign extended immediate value
+
+signal reg1_out_internal : std_logic_vector(31 downto 0) ; -- ALU first element
+signal reg2_out_internal : std_logic_vector(31 downto 0) ; -- ALU second element
+signal branch_taken : std_logic;
+signal branch_ctl : std_logic_vector(1 downto 0) ; -- control flow signal for taking branches and jumps
+signal offset : std_logic_vector(31 downto 0) ; 
+signal branch_dest : std_logic_vector(31 downto 0) ; 
+signal offset_select : std_logic;
 
 begin
 
@@ -50,9 +56,17 @@ begin
         
         port1_adr => r1, -- : in std_logic_vector(reg_adrsize-1 downto 0); -- Port 1 read address
         port2_adr => r2, -- : in std_logic_vector(reg_adrsize-1 downto 0); -- Port 2 read address
-        port1_out => reg1_out, -- : out std_logic_vector(31 downto 0);  -- Read port 1
-        port2_out => reg2_out -- : out std_logic_vector(31 downto 0);  -- Read port 2
+        port1_out => reg1_out_internal, -- : out std_logic_vector(31 downto 0);  -- Read port 1
+        port2_out => reg2_out_internal -- : out std_logic_vector(31 downto 0);  -- Read port 2
 
+    );
+
+    reg_comparator : ENTITY work.comparator
+    PORT MAP (
+        value1 => reg1_out_internal,
+        value2 => reg2_out_internal,
+        taken => branch_taken,
+        ctl => branch_ctl
     );
 
     decode_stage : process( clk )
@@ -66,13 +80,14 @@ begin
     begin
         if rising_edge(clk) then
             branch_ctl <= "00";
-            immediate_out <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length));
+            immediate_out_internal <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length));
             opcode := instruction_in(31 downto 26);
             rs := instruction_in(25 downto 21);
             rt := instruction_in(20 downto 16);
             rd := instruction_in(15 downto 11);
             shamt := instruction_in(10 downto 6);
             funct := instruction_in(5 downto 0);
+            offset_select <= '0';
 
             load <= '0';
             store <='0';
@@ -81,7 +96,6 @@ begin
             r2 <= rt;
 
             --alu operators signals
-            use_pc <= '0';
             
             if opcode = "000000" then
                 -- r-type instruction
@@ -138,7 +152,7 @@ begin
                         -- sll 
                         -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
                         alu_op <= "1010";
-                        immediate_out <= std_logic_vector(resize(signed(shamt), immediate_out'length));
+                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
                         use_imm <= '1';
                         r1 <= rt;
 
@@ -146,7 +160,7 @@ begin
                         -- srl
                         -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
                         alu_op <= "1101";
-                        immediate_out <= std_logic_vector(resize(signed(shamt), immediate_out'length));
+                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
                         use_imm <= '1';
                         r1 <= rt;
                     
@@ -154,18 +168,21 @@ begin
                         -- sra
                         -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
                         alu_op <= "1100";
-                        immediate_out <= std_logic_vector(resize(signed(shamt), immediate_out'length));
+                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
                         use_imm <= '1';
                         r1 <= rt;
 
                     when "001000" =>
                         -- jr
-                        -- NOTE : we use the content of the register directly as the offset
-                        -- first alu input should be pc
+                        -- NOTE : the output of r2 is used as the PC offset
+                        -- ALU is issued nop (add r0 + 0) with immediate value
                         alu_op <= "0000";  
-                        use_pc <= '1';
+                        r1 <= (others => '0');
                         r2 <= rs;
                         branch_ctl <= "11"; 
+                        offset_select <='1';
+                        use_imm <= '1';
+                        immediate_out_internal <= (others => '0');
                 
                     when others =>
                         alu_op <= "0000";   
@@ -175,16 +192,17 @@ begin
 
             elsif opcode = "000010" then
                 -- j    
-                immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
-                use_pc <= '1';
-                use_imm <= '1';
+                -- alu is issued nop (add r0 + r0)
+                immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                r1 <= (others => '0');
+                r2 <= (others => '0');
                 branch_ctl <= "11";
 
             elsif opcode = "000011" then
                 -- jal
-                immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
-                use_pc <= '1';
-                use_imm <= '1';
+                immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                r1 <= (others => '0');
+                r2 <= (others => '0');
                 branch_ctl <= "11";
                 -- TODO: indicate the need to store current PC
 
@@ -199,17 +217,17 @@ begin
                     when "001100" =>
                         -- andi
                         alu_op <= "0001";
-                        immediate_out <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
 
                     when "001101" =>
                         -- ori
                         alu_op <= "1001";
-                        immediate_out <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
 
                     when "001110" =>
                         -- xori
                         alu_op <= "1111";
-                        immediate_out <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
 
                     when "100000" =>
                         -- lb
@@ -253,16 +271,19 @@ begin
                         -- beq
                         alu_op <= "0000";
                         branch_ctl <= "01";
-                        use_pc <= '1';
-                        immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
-                 
+                        use_imm <= '0';
+                        immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                        r1 <= (others => '0');
+                        r2 <= (others => '0');
 
                     when "000101" =>
                         -- bne
                         alu_op <= "0000";
+                        use_imm <= '0';
                         branch_ctl <= "10";
-                        immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
-                        use_pc <= '1';
+                        immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                        r1 <= (others => '0');
+                        r2 <= (others => '0');
 
                     when others =>
                         null;
@@ -271,6 +292,25 @@ begin
             end if ;
         end if ;
     end process ; -- decode_stage
+
+    immediate_out <= immediate_out_internal;
+    reg1_out <= reg1_out_internal;
+    reg2_out <= reg2_out_internal;
+
+    dest : process( immediate_out_internal, offset_select, reg2_out_internal )
+    begin
+        if offset_select = '0' then
+            offset <= immediate_out_internal;
+        else 
+            offset <= reg2_out_internal;
+        end if;
+    end process ; -- dest
+
+    branch_dest <= std_logic_vector(signed(offset) + signed(pc_in));
+
+    with branch_taken select pc_out <=
+        branch_dest when '1',
+        pc_in when others;
 
 
 end architecture ; -- arch
