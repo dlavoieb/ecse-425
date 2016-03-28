@@ -85,8 +85,8 @@ proc InitFetch {} {
 InitFetch
 
 force -deposit /fetch/pc_in "00000000000000000000000000110000" 0
-force -deposit /fetch/pc_sel 1 0 ns, 0 1 ns 
-echo [exa /fetch/pc_out]
+force -deposit /fetch/pc_sel 1 0 ns, 0 1 ns
+
 # assert {[exa /fetch/pc_out] == "00000000000000000000000000010100" }
 run 1 ns
 # assert {[exa /fetch/pc_out] == "00000000000000000000000000100000"}
