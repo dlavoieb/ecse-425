@@ -307,7 +307,11 @@ begin
         end if;
     end process ; -- dest
 
-    branch_dest <= std_logic_vector(signed(offset) + signed(pc_in));
+    compute_branch_target : process( offset )
+    begin
+        branch_dest <= std_logic_vector(signed(offset) + signed(pc_in));
+    end process ; -- compute_branch_target
+
     branch_taken <= branch_taken_internal;
 
     with branch_taken_internal select pc_out <=
