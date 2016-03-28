@@ -1,0 +1,204 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.memory_arbiter_lib.all;
+
+entity PROCv2 is 
+port(
+clock : in std_logic;
+reset: in std_logic;
+
+we: in std_logic;
+radd:in std_logic_vector(reg_adrsize-1 downto 0);
+rdat: in std_logic_vector(31 downto 0);
+
+
+res: out std_logic_vector(31 downto 0);
+destregadd: out std_logic_vector(reg_adrsize-1 downto 0);
+loaden: out std_logic;
+storeen: out std_logic;
+regen:out std_logic;
+memdat: out std_logic_vector (31 downto 0)
+
+
+	);
+end entity;
+
+architecture foo of PROCv2 is
+
+component decode is
+port(
+clk : in std_logic;
+pc_in : in std_logic_vector(31 downto 0) ;
+pc_out : out std_logic_vector(31 downto 0) ;
+instruction_in : in std_logic_vector (31 downto 0);
+write_enable : in std_logic;
+write_register_address : in std_logic_vector(reg_adrsize-1 downto 0);
+write_register_data : in std_logic_vector(31 downto 0);
+alu_op : out std_logic_vector (3 downto 0); -- ALU function code
+reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
+reg2_out : out std_logic_vector(31 downto 0) ; -- ALU second element
+immediate_out : out std_logic_vector (31 downto 0); -- sign extended immediate value
+dest_register_address : out std_logic_vector (reg_adrsize-1 downto 0); -- destination register address for write back stage
+load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
+store : out std_logic; -- indicates if the mem stage should use the result of alu as address for store operation
+use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
+branch_taken : out std_logic; -- selector for IF stage pc source mux
+n_reset : in std_logic
+	);
+end component;
+
+component EX is
+port(
+RSD  : in  STD_LOGIC_VECTOR (31 downto 0);
+RTD   : in  STD_LOGIC_VECTOR (31 downto 0);
+IMM   : in  STD_LOGIC_VECTOR (31 downto 0);
+RDD   : out  STD_LOGIC_VECTOR (31 downto 0);
+RDAI	: in STD_LOGIC_VECTOR (4 downto 0);
+RDAO	: out STD_LOGIC_VECTOR (4 downto 0);
+FCode: in std_logic_vector(3 downto 0);
+clock   : in  STD_LOGIC;
+n_reset: in std_logic;
+D1Sel1  : in  STD_LOGIC;
+D1Sel0   : in  STD_LOGIC;
+D2Sel0   : in  STD_LOGIC;
+D2Sel1 : in  STD_LOGIC;
+MAWI: in std_logic;
+MARI: in std_logic;
+MAWO: out std_logic;
+MARO: out std_logic;
+mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
+RA: out std_logic
+	);
+end component;
+
+component fetch is
+port(
+	clk : in std_logic;
+    pc_out : out std_logic_vector (31 downto 0);
+    pc_in : in std_logic_vector (31 downto 0);
+    pc_sel : in std_logic;
+    pc_enable : in std_logic;
+    instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
+    n_reset : in std_logic
+	);
+end component;
+
+--Control Signals
+signal clk: std_logic;
+signal ex_reset: std_logic;
+signal id_reset: std_logic;
+signal if_reset: std_logic;
+
+--IF in buffers
+signal if_pc_in_buffer: std_logic_vector(31 downto 0);
+signal if_pc_sel_in_buffer: std_logic;
+signal if_pc_enable_in_buffer: std_logic;
+
+--IF out signals
+signal if_pc_out: std_logic_vector(31 downto 0);
+signal if_inst_out: std_logic_vector(31 downto 0);
+
+
+
+--ID in buffers
+signal id_inst_in_buffer:std_logic_vector (31 downto 0);
+signal id_wenable_in_buffer: std_logic;
+signal id_reg_add_in_buffer: std_logic_vector (reg_adrsize-1 downto 0);
+signal id_reg_data_in_buffer: std_logic_vector(31 downto 0);
+signal id_pc_in_buffer: std_logic_vector(31 downto 0);
+
+--ID out signals
+signal id_pc_out: std_logic_vector(31 downto 0);
+signal id_alu_op_out: std_logic_vector(3 downto 0);
+signal id_r1_out: std_logic_vector(31 downto 0);
+signal id_r2_out: std_logic_vector(31 downto 0);
+signal id_imm_out: std_logic_vector(31 downto 0);
+signal id_dest_regadd_out: std_logic_vector (reg_adrsize-1 downto 0);
+signal id_loaden_out: std_logic;
+signal id_storeen_out:std_logic;
+signal id_useimm_out:std_logic;
+signal id_branch_out : std_logic;
+
+--EX in buffers
+signal ex_r1_in_buffer:std_logic_vector (31 downto 0);
+signal ex_r2_in_buffer:std_logic_vector (31 downto 0);
+signal ex_imm_in_buffer:std_logic_vector (31 downto 0);
+signal ex_dest_regadd_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
+signal ex_alu_op_in_buffer: std_logic_vector(3 downto 0);
+signal ex_ALUData1_selector0_in_buffer: std_logic;
+signal ex_ALUData1_selector1_in_buffer: std_logic;
+signal ex_ALUData2_selector0_in_buffer: std_logic;
+signal ex_ALUData2_selector1_in_buffer: std_logic;
+signal ex_loaden_in_buffer: std_logic;
+signal ex_storeen_in_buffer:std_logic;
+
+--EX out signals
+signal ex_ALU_result_out:std_logic_vector (31 downto 0);--used by mem
+signal ex_dest_regadd_out:std_logic_vector (reg_adrsize-1 downto 0); --passthrough
+signal ex_loaden_out: std_logic;--used
+signal ex_storeen_out:std_logic;--used
+signal ex_reg_en_out:std_logic;--passthrough
+signal ex_mem_data_out:std_logic_vector (31 downto 0);--used
+
+begin
+
+--instantiate stages
+IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out,id_reset);
+EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_reg_en_out);
+IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
+
+clk<=clock;
+id_reset<=reset;
+ex_reset<=reset;
+if_reset<=reset;
+
+--unclocked branching signals
+if_pc_in_buffer<=id_pc_out;
+if_pc_sel_in_buffer<=id_branch_out;
+
+
+proc: process (clock)
+begin
+if falling_edge(clock) then
+
+		--IF/ID Buffer Latching
+		id_inst_in_buffer <=if_inst_out;
+		id_pc_in_buffer<=if_pc_out;
+
+
+		--ID/EX Buffer Latching
+		ex_r1_in_buffer <=id_r1_out;
+		ex_r2_in_buffer <=id_r2_out;
+		ex_imm_in_buffer <=id_imm_out;
+		ex_dest_regadd_in_buffer <= id_dest_regadd_out;
+		ex_alu_op_in_buffer <=id_alu_op_out;
+		ex_ALUData1_selector0_in_buffer<='0';
+		ex_ALUData1_selector1_in_buffer<='0';
+		ex_ALUData2_selector0_in_buffer<=id_useimm_out;
+		ex_ALUData2_selector1_in_buffer<='0';
+		ex_loaden_in_buffer <=id_loaden_out;
+		ex_storeen_in_buffer <=id_storeen_out;
+
+
+		--ID inputs
+		id_wenable_in_buffer<=we;
+		id_reg_add_in_buffer<=radd;
+		id_reg_data_in_buffer<=rdat;
+
+		--EX outputs
+		res<=ex_ALU_result_out;
+		destregadd<=ex_dest_regadd_out;
+		loaden<=ex_loaden_out;
+		storeen<=ex_storeen_out;
+		regen<=ex_reg_en_out;
+		memdat<=ex_mem_data_out;
+
+
+
+
+
+end if;
+end process;
+
+end foo;

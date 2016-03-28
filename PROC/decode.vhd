@@ -79,218 +79,216 @@ begin
     variable shamt : std_logic_vector(4 downto 0);
     variable funct : std_logic_vector(5 downto 0);
     begin
-        if rising_edge(clk) then
-            branch_ctl <= "00";
-            immediate_out_internal <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length));
-            opcode := instruction_in(31 downto 26);
-            rs := instruction_in(25 downto 21);
-            rt := instruction_in(20 downto 16);
-            rd := instruction_in(15 downto 11);
-            shamt := instruction_in(10 downto 6);
-            funct := instruction_in(5 downto 0);
-            offset_select <= '0';
+        branch_ctl <= "00";
+        immediate_out_internal <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length));
+        opcode := instruction_in(31 downto 26);
+        rs := instruction_in(25 downto 21);
+        rt := instruction_in(20 downto 16);
+        rd := instruction_in(15 downto 11);
+        shamt := instruction_in(10 downto 6);
+        funct := instruction_in(5 downto 0);
+        offset_select <= '0';
 
-            load <= '0';
-            store <='0';
+        load <= '0';
+        store <='0';
+        
+        r1 <= rs;
+        r2 <= rt;
+
+        --alu operators signals
+        
+        if opcode = "000000" then
+            -- r-type instruction
+            dest_register_address <= rd;
+            use_imm <= '0';
+
+            case( funct ) is
             
-            r1 <= rs;
-            r2 <= rt;
+                when "100000" =>
+                    -- add
+                    alu_op <= "0000";
 
-            --alu operators signals
+                when "100100" =>
+                    -- and
+                    alu_op <= "0001";
+
+                when "011010" =>
+                    -- div
+                    alu_op <= "0010";
+
+                when "100111" =>
+                    -- nor
+                    alu_op <= "1000";
+                
+                when "100101" =>
+                    -- or
+                    alu_op <= "1001";
+                
+                when "101010" =>
+                    -- slt
+                    alu_op <= "1011";
+                
+                when "100010" =>
+                    -- sub
+                    alu_op <= "1110";
+                
+                when "001110" =>
+                    -- xor
+                    alu_op <= "1111";
+                
+                when "010100" =>
+                    -- mult
+                    alu_op <= "0111";
+                
+                when "010000" =>
+                    -- mfhi
+                    alu_op <= "0101";
+                
+                when "010010" =>
+                    -- mflo
+                    alu_op <= "0110";
+                
+                when "000000" =>
+                    -- sll 
+                    -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
+                    alu_op <= "1010";
+                    immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
+                    use_imm <= '1';
+                    r1 <= rt;
+
+                when "000010" =>
+                    -- srl
+                    -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
+                    alu_op <= "1101";
+                    immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
+                    use_imm <= '1';
+                    r1 <= rt;
+                
+                when "000011" =>
+                    -- sra
+                    -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
+                    alu_op <= "1100";
+                    immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
+                    use_imm <= '1';
+                    r1 <= rt;
+
+                when "001000" =>
+                    -- jr
+                    -- NOTE : the output of r2 is used as the PC offset
+                    -- ALU is issued nop (add r0 + 0) with immediate value
+                    alu_op <= "0000";  
+                    r1 <= (others => '0');
+                    r2 <= rs;
+                    branch_ctl <= "11"; 
+                    offset_select <='1';
+                    use_imm <= '1';
+                    immediate_out_internal <= (others => '0');
             
-            if opcode = "000000" then
-                -- r-type instruction
-                dest_register_address <= rd;
-                use_imm <= '0';
+                when others =>
+                    alu_op <= "0000";   
+                    r1 <= "00000";
+                    r2 <= "00000";
+            end case ;
 
-                case( funct ) is
+        elsif opcode = "000010" then
+            -- j    
+            -- alu is issued nop (add r0 + r0)
+            immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+            r1 <= (others => '0');
+            r2 <= (others => '0');
+            branch_ctl <= "11";
+
+        elsif opcode = "000011" then
+            -- jal
+            immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+            r1 <= (others => '0');
+            r2 <= (others => '0');
+            branch_ctl <= "11";
+            -- TODO: indicate the need to store current PC
+
+        else
+            dest_register_address <= rt;
+            use_imm <= '1';
+            case( opcode ) is
+            
+                when "001000" =>
+                    -- addi
+                    alu_op <= "0000";
+                when "001100" =>
+                    -- andi
+                    alu_op <= "0001";
+                    immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+
+                when "001101" =>
+                    -- ori
+                    alu_op <= "1001";
+                    immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+
+                when "001110" =>
+                    -- xori
+                    alu_op <= "1111";
+                    immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+
+                when "100000" =>
+                    -- lb
+                    alu_op <= "0000";
+                    load <= '1';
                 
-                    when "100000" =>
-                        -- add
-                        alu_op <= "0000";
+                when "100101" =>
+                    -- lhu
+                    alu_op <= "0000";
+                    load <= '1';
 
-                    when "100100" =>
-                        -- and
-                        alu_op <= "0001";
+                when "110000" =>
+                    -- ll
+                    alu_op <= "0000";
+                    load <= '1';
 
-                    when "011010" =>
-                        -- div
-                        alu_op <= "0010";
+                when "100011" =>
+                    -- lw
+                    alu_op <= "0000";
+                    load <= '1'; 
+                when "001111" =>
+                    -- lui
+                    alu_op <= "0100"; 
+                    load <= '1'; 
 
-                    when "100111" =>
-                        -- nor
-                        alu_op <= "1000";
-                    
-                    when "100101" =>
-                        -- or
-                        alu_op <= "1001";
-                    
-                    when "101010" =>
-                        -- slt
-                        alu_op <= "1011";
-                    
-                    when "100010" =>
-                        -- sub
-                        alu_op <= "1110";
-                    
-                    when "001110" =>
-                        -- xor
-                        alu_op <= "1111";
-                    
-                    when "010100" =>
-                        -- mult
-                        alu_op <= "0111";
-                    
-                    when "010000" =>
-                        -- mfhi
-                        alu_op <= "0101";
-                    
-                    when "010010" =>
-                        -- mflo
-                        alu_op <= "0110";
-                    
-                    when "000000" =>
-                        -- sll 
-                        -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
-                        alu_op <= "1010";
-                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
-                        use_imm <= '1';
-                        r1 <= rt;
+                when "101000" =>
+                    -- sb
+                    alu_op <= "0000";
+                    store <= '1';
 
-                    when "000010" =>
-                        -- srl
-                        -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
-                        alu_op <= "1101";
-                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
-                        use_imm <= '1';
-                        r1 <= rt;
-                    
-                    when "000011" =>
-                        -- sra
-                        -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
-                        alu_op <= "1100";
-                        immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
-                        use_imm <= '1';
-                        r1 <= rt;
+                when "101011" =>
+                    -- sw
+                    alu_op <= "0000";
+                    store <= '1';
 
-                    when "001000" =>
-                        -- jr
-                        -- NOTE : the output of r2 is used as the PC offset
-                        -- ALU is issued nop (add r0 + 0) with immediate value
-                        alu_op <= "0000";  
-                        r1 <= (others => '0');
-                        r2 <= rs;
-                        branch_ctl <= "11"; 
-                        offset_select <='1';
-                        use_imm <= '1';
-                        immediate_out_internal <= (others => '0');
-                
-                    when others =>
-                        alu_op <= "0000";   
-                        r1 <= "00000";
-                        r2 <= "00000";
-                end case ;
+                when "001010" =>
+                    -- stli
+                    alu_op <= "1011";
 
-            elsif opcode = "000010" then
-                -- j    
-                -- alu is issued nop (add r0 + r0)
-                immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                r1 <= (others => '0');
-                r2 <= (others => '0');
-                branch_ctl <= "11";
+                when "000100" =>
+                    -- beq
+                    alu_op <= "0000";
+                    branch_ctl <= "01";
+                    use_imm <= '0';
+                    immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                    r1 <= (others => '0');
+                    r2 <= (others => '0');
 
-            elsif opcode = "000011" then
-                -- jal
-                immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                r1 <= (others => '0');
-                r2 <= (others => '0');
-                branch_ctl <= "11";
-                -- TODO: indicate the need to store current PC
+                when "000101" =>
+                    -- bne
+                    alu_op <= "0000";
+                    use_imm <= '0';
+                    branch_ctl <= "10";
+                    immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
+                    r1 <= (others => '0');
+                    r2 <= (others => '0');
 
-            else
-                dest_register_address <= rt;
-                use_imm <= '1';
-                case( opcode ) is
-                
-                    when "001000" =>
-                        -- addi
-                        alu_op <= "0000";
-                    when "001100" =>
-                        -- andi
-                        alu_op <= "0001";
-                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
+                when others =>
+                    null;
 
-                    when "001101" =>
-                        -- ori
-                        alu_op <= "1001";
-                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
-
-                    when "001110" =>
-                        -- xori
-                        alu_op <= "1111";
-                        immediate_out_internal <= zero16b & instruction_in(15 downto 0); -- zero extended instead of sign extended
-
-                    when "100000" =>
-                        -- lb
-                        alu_op <= "0000";
-                        load <= '1';
-                    
-                    when "100101" =>
-                        -- lhu
-                        alu_op <= "0000";
-                        load <= '1';
-
-                    when "110000" =>
-                        -- ll
-                        alu_op <= "0000";
-                        load <= '1';
-
-                    when "100011" =>
-                        -- lw
-                        alu_op <= "0000";
-                        load <= '1'; 
-                    when "001111" =>
-                        -- lui
-                        alu_op <= "0100"; 
-                        load <= '1'; 
-
-                    when "101000" =>
-                        -- sb
-                        alu_op <= "0000";
-                        store <= '1';
-
-                    when "101011" =>
-                        -- sw
-                        alu_op <= "0000";
-                        store <= '1';
-
-                    when "001010" =>
-                        -- stli
-                        alu_op <= "1011";
-
-                    when "000100" =>
-                        -- beq
-                        alu_op <= "0000";
-                        branch_ctl <= "01";
-                        use_imm <= '0';
-                        immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                        r1 <= (others => '0');
-                        r2 <= (others => '0');
-
-                    when "000101" =>
-                        -- bne
-                        alu_op <= "0000";
-                        use_imm <= '0';
-                        branch_ctl <= "10";
-                        immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                        r1 <= (others => '0');
-                        r2 <= (others => '0');
-
-                    when others =>
-                        null;
-
-                end case ;
-            end if ;
+            end case ;
         end if ;
     end process ; -- decode_stage
 
@@ -309,7 +307,7 @@ begin
 
     compute_branch_target : process( offset )
     begin
-        branch_dest <= std_logic_vector(signed(offset) + signed(pc_in));
+        branch_dest <= std_logic_vector(signed(offset) + signed(pc_in)-4);
     end process ; -- compute_branch_target
 
     branch_taken <= branch_taken_internal;
