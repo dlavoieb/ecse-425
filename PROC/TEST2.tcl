@@ -21,7 +21,8 @@ add wave -group "EX in Buffers" -radix decimal sim:/PROCv2/ex_r1_in_buffer\
     sim:/PROCv2/ex_alu_op_in_buffer\
     sim:/PROCv2/ex_loaden_in_buffer\
     sim:/PROCv2/ex_storeen_in_buffer\
-    sim:/PROCv2/ex_ALUData2_selector0_in_buffer
+    sim:/PROCv2/ex_ALUData2_selector0_in_buffer\
+    sim:/PROCv2/ex_stall_in_buffer
 
 add wave -group "Decode Out" sim:/PROCv2/id_alu_op_out\
 -radix decimal sim:/PROCv2/id_r1_out\

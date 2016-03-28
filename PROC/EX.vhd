@@ -32,6 +32,7 @@ MAWO: out std_logic;
 MARO: out std_logic;
 
 mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
+ex_stall: in std_logic;
 
 RA: out std_logic
 
@@ -97,9 +98,10 @@ mux2: mux41 port map(SEL20, SEL21, A2, B2, C2, D2, X2);
 
 
 
-main: process (clock, n_reset)
+main: process (clock, n_reset,ex_stall)
 begin
-if (falling_edge(n_reset) or n_reset = '0') then
+
+if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
 
 A1<= (others => '0');
 B1<= (others => '0');

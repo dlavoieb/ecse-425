@@ -68,6 +68,7 @@ MARI: in std_logic;
 MAWO: out std_logic;
 MARO: out std_logic;
 mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
+ex_stall: in std_logic;
 RA: out std_logic
 	);
 end component;
@@ -98,8 +99,6 @@ signal if_pc_enable_in_buffer: std_logic;
 --IF out signals
 signal if_pc_out: std_logic_vector(31 downto 0);
 signal if_inst_out: std_logic_vector(31 downto 0);
-
-
 
 --ID in buffers
 signal id_inst_in_buffer:std_logic_vector (31 downto 0);
@@ -132,6 +131,8 @@ signal ex_ALUData2_selector0_in_buffer: std_logic;
 signal ex_ALUData2_selector1_in_buffer: std_logic;
 signal ex_loaden_in_buffer: std_logic;
 signal ex_storeen_in_buffer:std_logic;
+signal ex_stall_in_buffer:std_logic;
+signal ex_stall_in_buffer0:std_logic;
 
 --EX out signals
 signal ex_ALU_result_out:std_logic_vector (31 downto 0);--used by mem
@@ -145,7 +146,7 @@ begin
 
 --instantiate stages
 IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out,id_reset);
-EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_reg_en_out);
+EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_reg_en_out);
 IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
 
 clk<=clock;
@@ -180,7 +181,8 @@ if falling_edge(clock) then
 		ex_loaden_in_buffer <=id_loaden_out;
 		ex_storeen_in_buffer <=id_storeen_out;
 
-
+		ex_stall_in_buffer0<=id_branch_out;
+		ex_stall_in_buffer<=ex_stall_in_buffer0;
 		--ID inputs
 		id_wenable_in_buffer<=we;
 		id_reg_add_in_buffer<=radd;
