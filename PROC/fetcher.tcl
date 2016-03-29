@@ -7,17 +7,22 @@ proc AddWaves {} {
 
 	;#Add the following signals to the Waves window
 	add wave -position end  -radix binary sim:/fetch/clk
-	add wave -position end  -radix binary sim:/fetch/n_reset
+  add wave -position end  -radix binary sim:/fetch/n_reset
+	add wave -position end  -radix binary sim:/fetch/pc_enable
 
   ;#These signals will be contained in a group named "Port 1"
-	add wave -group "Fetch"  -radix binary sim:/fetch/pc_out\
-                            -radix binary sim:/fetch/pc_in\
+	add wave -group "Fetch"  -radix unsigned sim:/fetch/pc_out\
+                            -radix unsigned sim:/fetch/pc_in\
                             -radix binary sim:/fetch/pc_sel\
                             -radix binary sim:/fetch/instruction_out
 
   ;#These signals will be contained in a group named "Main Memory"
-  add wave -group "Main Memory" -radix binary sim:/fetch/instruction_memory/initialize
+  add wave -group "Main Memory" -radix binary sim:/fetch/instruction_memory/initialize\
+                -radix unsigned sim:/fetch/im_address\
+                sim:/fetch/im_re\
+                sim:/fetch/im_rd_ready
 
+ 
   ;#Set some formating options to make the Waves window more legible
 	configure wave -namecolwidth 250
 	WaveRestoreZoom {0 ns} {8 ns}
@@ -28,9 +33,15 @@ proc GenerateCPUClock {} {
 	force -deposit /fetch/clk 0 0 ns, 1 0.5 ns -repeat 1 ns
 }
 
+proc assert condition {
+  if {![uplevel 1 expr $condition]} {
+    return -code error "assertion failed: $condition"
+  }
+}
+
 proc loadInstructions {} {
   force -deposit /fetch/instruction_memory/initialize 0 0 ns, 1 1 ns, 0 2 ns
-  run 5 ns ;#Force signals to update right away
+  run 2 ns ;#Force signals to update right away
 }
 
 ;#This function compiles the fetch stage and its components.
@@ -42,9 +53,9 @@ proc InitFetch {} {
   vlib work
 
   ;#Compile the fetch stage and its subcomponents
-  #vcom Memory_in_Byte.vhd
-  vcom memory_arbiter_lib.vhd
-  vcom Main_Memory.vhd
+  vcom ../assignment3-mem_arbiter/Memory_in_Byte.vhd
+  vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
+  vcom ../assignment3-mem_arbiter/Main_Memory.vhd
   vcom PC.vhd
   vcom fetch.vhd
 
@@ -56,13 +67,27 @@ proc InitFetch {} {
 	AddWaves
 
   force -deposit /fetch/n_reset 0 0 ns, 1 1 ns
-  force -deposit /fetch/pc_out 0 0
-  force -deposit /fetch/pc_in 0 0
+  force -deposit /fetch/pc_enable 0 0 ns
   force -deposit /fetch/pc_sel 0 0
-  force -deposit /fetch/instruction_out 0 0
 
   ;#Generate a CPU clock
 	GenerateCPUClock
 
   run 1 ns
+  loadInstructions
+  run 1 ns
+
+  force -deposit /fetch/pc_enable 1 0
+  run 5 ns
+   # DO STUFF
 }
+
+InitFetch
+
+force -deposit /fetch/pc_in "00000000000000000000000000110000" 0
+force -deposit /fetch/pc_sel 1 0 ns, 0 1 ns
+
+# assert {[exa /fetch/pc_out] == "00000000000000000000000000010100" }
+run 1 ns
+# assert {[exa /fetch/pc_out] == "00000000000000000000000000100000"}
+run 3 ns 

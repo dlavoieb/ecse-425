@@ -14,11 +14,8 @@ RDAO	: out STD_LOGIC_VECTOR (4 downto 0);
 
 FCode: in std_logic_vector(3 downto 0);
 
-
-PCEI: in std_logic_vector(31 downto 0);
-PCEO: out std_logic_vector(31 downto 0);
-
 clock   : in  STD_LOGIC;
+n_reset: in std_logic;
 
 D1Sel1  : in  STD_LOGIC;
 D1Sel0   : in  STD_LOGIC;
@@ -26,8 +23,7 @@ D1Sel0   : in  STD_LOGIC;
 D2Sel0   : in  STD_LOGIC;
 D2Sel1 : in  STD_LOGIC;
 
-BE: in std_logic_vector(1 downto 0);
-BT: out std_logic;
+
 
 MAWI: in std_logic;
 MARI: in std_logic;
@@ -35,10 +31,11 @@ MARI: in std_logic;
 MAWO: out std_logic;
 MARO: out std_logic;
 
-RA: out std_logic;
+mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
+ex_stall: in std_logic;
 
+RA: out std_logic
 
-ZERO: out std_logic
 );
 
 end EX;
@@ -101,12 +98,32 @@ mux2: mux41 port map(SEL20, SEL21, A2, B2, C2, D2, X2);
 
 
 
-main: process (clock)
+main: process (clock, n_reset,ex_stall)
 begin
-if rising_edge(clock) then
+
+if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
+
+A1<= (others => '0');
+B1<= (others => '0');
+C1<= (others => '0');
+D1<= (others => '0');
+A2<= (others => '0');
+B2<= (others => '0');
+C2<= (others => '0');
+D2<= (others => '0');
+sFC<=(others => '0');
+RDAO<=(others => '0');
+MARO<='0';
+MAWO<='0';
+RA<='0';
+mem_data_out<=(others => '0');
+
+
+
+elsif rising_edge(clock) then
 		--MUX 1
 		A1<= RSD;
-		B1<= PCEI;
+		B1<= (others => '0');
 		C1<= (others => '0');
 		D1<= (others => '0');
 		SEL11<= D1Sel1;
@@ -126,24 +143,11 @@ if rising_edge(clock) then
 		sclock<= clock;
 		sFC<= FCode;
 		
-
-
-		--BranchSelector
-		if (BE="01" and (RSD=RTD)) then
-		BT<='1';
-		elsif (BE = "10" and (not (RSD=RTD))) then
-		BT<='1';
-		elsif (BE="11") then
-		BT<='1';
-		else
-		BT<='0';
-		end if;
-
 		--Forwarding signals
-		PCEO<=PCEI;
 		RDAO<=RDAI;
 		MARO<=MARI;
 		MAWO<=MAWI;
+		mem_data_out<=RTD;
 
 		--WB Stage Control Signal generation
 		if (FCode="0111" or FCode="0010") then
@@ -153,13 +157,11 @@ if rising_edge(clock) then
 		end if;
 
 end if;
-
 end process;
 
 sRT<=X2 ;
 sRS<=X1 ;
 RDD<= sRES;
-ZERO<=sZERO;
 
 end foo;
 
