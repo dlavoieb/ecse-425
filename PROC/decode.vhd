@@ -20,12 +20,13 @@ entity decode is
 
         immediate_out : out std_logic_vector (31 downto 0); -- sign extended immediate value
         dest_register_address : out std_logic_vector (reg_adrsize-1 downto 0); -- destination register address for write back stage
-        
+
         load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
         store : out std_logic; -- indicates if the mem stage should use the result of alu as address for store operation
         use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
         branch_taken : out std_logic; -- selector for IF stage pc source mux
-     
+        byte : out std_logic;
+
         n_reset : in std_logic
     ) ;
 end entity ; -- decode
@@ -41,8 +42,8 @@ signal reg1_out_internal : std_logic_vector(31 downto 0) ; -- ALU first element
 signal reg2_out_internal : std_logic_vector(31 downto 0) ; -- ALU second element
 signal branch_taken_internal : std_logic;
 signal branch_ctl : std_logic_vector(1 downto 0) ; -- control flow signal for taking branches and jumps
-signal offset : std_logic_vector(31 downto 0) ; 
-signal branch_dest : std_logic_vector(31 downto 0) ; 
+signal offset : std_logic_vector(31 downto 0) ;
+signal branch_dest : std_logic_vector(31 downto 0) ;
 signal offset_select : std_logic;
 
 begin
@@ -54,7 +55,7 @@ begin
         write_enable => write_enable, -- : in std_logic;  -- Write control signal
         write_in => write_register_data, -- : in std_logic_vector(31 downto 0);  -- Input data port
         write_adr => write_register_address, --: in std_ulogic_vector(reg_adrsize-1 downto 0);-- address write
-        
+
         port1_adr => r1, -- : in std_logic_vector(reg_adrsize-1 downto 0); -- Port 1 read address
         port2_adr => r2, -- : in std_logic_vector(reg_adrsize-1 downto 0); -- Port 2 read address
         port1_out => reg1_out_internal, -- : out std_logic_vector(31 downto 0);  -- Read port 1
@@ -91,19 +92,21 @@ begin
 
         load <= '0';
         store <='0';
-        
+
         r1 <= rs;
         r2 <= rt;
 
+        byte <= '1';
+
         --alu operators signals
-        
+
         if opcode = "000000" then
             -- r-type instruction
             dest_register_address <= rd;
             use_imm <= '0';
 
             case( funct ) is
-            
+
                 when "100000" =>
                     -- add
                     alu_op <= "0000";
@@ -119,37 +122,37 @@ begin
                 when "100111" =>
                     -- nor
                     alu_op <= "1000";
-                
+
                 when "100101" =>
                     -- or
                     alu_op <= "1001";
-                
+
                 when "101010" =>
                     -- slt
                     alu_op <= "1011";
-                
+
                 when "100010" =>
                     -- sub
                     alu_op <= "1110";
-                
+
                 when "001110" =>
                     -- xor
                     alu_op <= "1111";
-                
+
                 when "010100" =>
                     -- mult
                     alu_op <= "0111";
-                
+
                 when "010000" =>
                     -- mfhi
                     alu_op <= "0101";
-                
+
                 when "010010" =>
                     -- mflo
                     alu_op <= "0110";
-                
+
                 when "000000" =>
-                    -- sll 
+                    -- sll
                     -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
                     alu_op <= "1010";
                     immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
@@ -163,7 +166,7 @@ begin
                     immediate_out_internal <= std_logic_vector(resize(signed(shamt), immediate_out_internal'length));
                     use_imm <= '1';
                     r1 <= rt;
-                
+
                 when "000011" =>
                     -- sra
                     -- NOTE: shift amount will be in immediate field. ALU mux for input 2 must be set properly
@@ -176,22 +179,22 @@ begin
                     -- jr
                     -- NOTE : the output of r2 is used as the PC offset
                     -- ALU is issued nop (add r0 + 0) with immediate value
-                    alu_op <= "0000";  
+                    alu_op <= "0000";
                     r1 <= (others => '0');
                     r2 <= rs;
-                    branch_ctl <= "11"; 
+                    branch_ctl <= "11";
                     offset_select <='1';
                     use_imm <= '1';
                     immediate_out_internal <= (others => '0');
-            
+
                 when others =>
-                    alu_op <= "0000";   
+                    alu_op <= "0000";
                     r1 <= "00000";
                     r2 <= "00000";
             end case ;
 
         elsif opcode = "000010" then
-            -- j    
+            -- j
             -- alu is issued nop (add r0 + r0)
             immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
             r1 <= (others => '0');
@@ -210,7 +213,7 @@ begin
             dest_register_address <= rt;
             use_imm <= '1';
             case( opcode ) is
-            
+
                 when "001000" =>
                     -- addi
                     alu_op <= "0000";
@@ -233,7 +236,8 @@ begin
                     -- lb
                     alu_op <= "0000";
                     load <= '1';
-                
+                    byte <= '0';
+
                 when "100101" =>
                     -- lhu
                     alu_op <= "0000";
@@ -247,16 +251,18 @@ begin
                 when "100011" =>
                     -- lw
                     alu_op <= "0000";
-                    load <= '1'; 
+                    load <= '1';
+
                 when "001111" =>
                     -- lui
-                    alu_op <= "0100"; 
-                    load <= '1'; 
+                    alu_op <= "0100";
+                    load <= '1';
 
                 when "101000" =>
                     -- sb
                     alu_op <= "0000";
                     store <= '1';
+                    byte <= '0';
 
                 when "101011" =>
                     -- sw
@@ -300,7 +306,7 @@ begin
     begin
         if offset_select = '0' then
             offset <= immediate_out_internal;
-        else 
+        else
             offset <= reg2_out_internal;
         end if;
     end process ; -- dest
