@@ -32,9 +32,16 @@ MAWO: out std_logic;
 MARO: out std_logic;
 
 mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
+
 ex_stall: in std_logic;
 
-RA: out std_logic
+byte_in:in std_logic;
+WB_enable_in: in std_logic;
+
+byte_out:out std_logic;
+WB_enable_out: out std_logic
+
+
 
 );
 
@@ -115,9 +122,10 @@ sFC<=(others => '0');
 RDAO<=(others => '0');
 MARO<='0';
 MAWO<='0';
-RA<='0';
-mem_data_out<=(others => '0');
 
+mem_data_out<=(others => '0');
+byte_out<='0';
+WB_enable_out<='0';
 
 
 elsif rising_edge(clock) then
@@ -148,13 +156,9 @@ elsif rising_edge(clock) then
 		MARO<=MARI;
 		MAWO<=MAWI;
 		mem_data_out<=RTD;
-
-		--WB Stage Control Signal generation
-		if (FCode="0111" or FCode="0010") then
-			RA<='0';
-			else 
-			RA<='1';
-		end if;
+		WB_enable_out<=WB_enable_in;
+		byte_out<=byte_in;
+		
 
 end if;
 end process;

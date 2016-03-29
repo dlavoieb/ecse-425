@@ -6,25 +6,29 @@ use work.memory_arbiter_lib.all;
 entity PROCv2 is
 port(
 clock : in std_logic;
-reset: in std_logic;
-
-we: in std_logic;
-radd:in std_logic_vector(reg_adrsize-1 downto 0);
-rdat: in std_logic_vector(31 downto 0);
-
-
-res: out std_logic_vector(31 downto 0);
-destregadd: out std_logic_vector(reg_adrsize-1 downto 0);
-loaden: out std_logic;
-storeen: out std_logic;
-regen:out std_logic;
-memdat: out std_logic_vector (31 downto 0)
-
+reset: in std_logic
 
 	);
 end entity;
 
 architecture foo of PROCv2 is
+
+component MEM is
+port(
+clk   : in  std_logic;  -- Clock signal
+n_reset : in std_logic; -- Active low reset signal
+data_in : in std_logic_vector (31 downto 0); --  Connects with ex_mem_data_out
+address_in : in std_logic_vector(31 downto 0); --  Connects with ex_ALU_result_out - Truncated down to 5 lower bits
+mem_access_write : in std_logic;  -- Connects with ex_storeen_out
+byte : in std_logic; -- when '1' you are interacting with the memory in word otherwise in byte
+register_access_in : in std_logic; -- Connects with ex_reg_en_out
+register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connects with ex_dest_regadd_out (passthrough)
+
+register_access_out : out std_logic; -- Connects with register access in of WB stage (passthrough)
+register_access_add_out : out std_logic_vector(reg_adrsize-1 downto 0); -- ex_dest_regadd_out (passthrough)
+data_out : out std_logic_vector(31 downto 0) :=(others =>'Z')
+	);
+end component;
 
 component decode is
 port(
@@ -45,6 +49,7 @@ store : out std_logic; -- indicates if the mem stage should use the result of al
 use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
 branch_taken : out std_logic; -- selector for IF stage pc source mux
 byte : out std_logic;
+write_back_enable : out std_logic;
 n_reset : in std_logic
 	);
 end component;
@@ -70,7 +75,11 @@ MAWO: out std_logic;
 MARO: out std_logic;
 mem_data_out:out STD_LOGIC_VECTOR (31 downto 0);
 ex_stall: in std_logic;
-RA: out std_logic
+byte_in:in std_logic;
+WB_enable_in: in std_logic;
+byte_out:out std_logic;
+WB_enable_out: out std_logic
+
 	);
 end component;
 
@@ -91,6 +100,8 @@ signal clk: std_logic;
 signal ex_reset: std_logic;
 signal id_reset: std_logic;
 signal if_reset: std_logic;
+signal mem_reset: std_logic;
+
 
 --IF in buffers
 signal if_pc_in_buffer: std_logic_vector(31 downto 0);
@@ -120,6 +131,7 @@ signal id_storeen_out:std_logic;
 signal id_useimm_out:std_logic;
 signal id_branch_out : std_logic;
 signal id_byte_out : std_logic;
+signal id_WB_enable_out : std_logic;
 
 --EX in buffers
 signal ex_r1_in_buffer:std_logic_vector (31 downto 0);
@@ -135,30 +147,63 @@ signal ex_loaden_in_buffer: std_logic;
 signal ex_storeen_in_buffer:std_logic;
 signal ex_stall_in_buffer:std_logic;
 signal ex_stall_in_buffer0:std_logic;
+signal ex_byte_in_buffer:std_logic;
+signal ex_WB_enable_in_buffer:std_logic;
 
 --EX out signals
 signal ex_ALU_result_out:std_logic_vector (31 downto 0);--used by mem
 signal ex_dest_regadd_out:std_logic_vector (reg_adrsize-1 downto 0); --passthrough
 signal ex_loaden_out: std_logic;--used
 signal ex_storeen_out:std_logic;--used
-signal ex_reg_en_out:std_logic;--passthrough
 signal ex_mem_data_out:std_logic_vector (31 downto 0);--used
+signal ex_byte_out : std_logic;
+signal ex_WB_enable_out : std_logic;
+
+--MEM in buffers
+signal mem_data_in_buffer:std_logic_vector (31 downto 0);
+signal mem_address_in_buffer:std_logic_vector (31 downto 0);
+signal mem_access_write_in_buffer: std_logic;
+signal mem_byte_in_buffer : std_logic;
+signal mem_WB_enable_in_buffer : std_logic;
+signal mem_WB_address_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
+
+
+--MEM out signals
+signal mem_WB_enable_out: std_logic;
+signal mem_WB_address_out:std_logic_vector (reg_adrsize-1 downto 0);
+signal mem_WB_data_out: std_logic_vector (31 downto 0);
+
+
+--WB in buffers
+signal wb_WB_enable_in_buffer: std_logic;
+signal wb_WB_address_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
+signal wb_WB_data_in_buffer: std_logic_vector (31 downto 0);
+
+
 
 begin
 
 --instantiate stages
-IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out, id_reset);
-EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_reg_en_out);
+IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
+EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_WB_enable_out);
 IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
+MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_WB_data_out);
+
 
 clk<=clock;
 id_reset<=reset;
 ex_reset<=reset;
 if_reset<=reset;
+mem_reset<=reset;
 
 --unclocked branching signals
 if_pc_in_buffer<=id_pc_out;
 if_pc_sel_in_buffer<=id_branch_out;
+
+--unclocked WB to ID signals
+id_wenable_in_buffer<=wb_WB_enable_in_buffer;
+id_reg_add_in_buffer<=wb_WB_address_in_buffer;
+id_reg_data_in_buffer<=wb_WB_data_in_buffer;
 
 
 proc: process (clock)
@@ -185,19 +230,23 @@ if falling_edge(clock) then
 
 		ex_stall_in_buffer0<=id_branch_out;
 		ex_stall_in_buffer<=ex_stall_in_buffer0;
-		--ID inputs
-		id_wenable_in_buffer<=we;
-		id_reg_add_in_buffer<=radd;
-		id_reg_data_in_buffer<=rdat;
 
-		--EX outputs
-		res<=ex_ALU_result_out;
-		destregadd<=ex_dest_regadd_out;
-		loaden<=ex_loaden_out;
-		storeen<=ex_storeen_out;
-		regen<=ex_reg_en_out;
-		memdat<=ex_mem_data_out;
+		ex_byte_in_buffer<=id_byte_out;
+		ex_WB_enable_in_buffer<=ex_WB_enable_out;
+	
 
+		--EX/MEM Buffer Latching
+		mem_address_in_buffer<=ex_ALU_result_out;
+		mem_WB_address_in_buffer<=ex_dest_regadd_out;
+		mem_access_write_in_buffer<=ex_storeen_out;
+		mem_data_in_buffer<=ex_mem_data_out;
+		mem_byte_in_buffer<=ex_byte_out;
+		mem_WB_enable_in_buffer<=ex_WB_enable_out;
+
+		--MEM/WB(ID) buffer latching
+		wb_WB_data_in_buffer<=mem_WB_data_out;
+		wb_WB_enable_in_buffer<=mem_WB_enable_out;
+		wb_WB_address_in_buffer<=mem_WB_address_out;
 
 
 

@@ -26,7 +26,7 @@ entity decode is
         use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
         branch_taken : out std_logic; -- selector for IF stage pc source mux
         byte : out std_logic;
-
+        write_back_enable : out std_logic; -- write-back stage is expected to write to regs
         n_reset : in std_logic
     ) ;
 end entity ; -- decode
@@ -92,6 +92,7 @@ begin
 
         load <= '0';
         store <='0';
+        write_back_enable <= '1';
 
         r1 <= rs;
         r2 <= rt;
@@ -118,6 +119,7 @@ begin
                 when "011010" =>
                     -- div
                     alu_op <= "0010";
+                    write_back_enable <= '0';
 
                 when "100111" =>
                     -- nor
@@ -142,6 +144,7 @@ begin
                 when "010100" =>
                     -- mult
                     alu_op <= "0111";
+                    write_back_enable <= '0';
 
                 when "010000" =>
                     -- mfhi
@@ -186,11 +189,13 @@ begin
                     offset_select <='1';
                     use_imm <= '1';
                     immediate_out_internal <= (others => '0');
+                    write_back_enable <= '0';
 
                 when others =>
                     alu_op <= "0000";
                     r1 <= "00000";
                     r2 <= "00000";
+                    write_back_enable <= '0';
             end case ;
 
         elsif opcode = "000010" then
@@ -200,6 +205,7 @@ begin
             r1 <= (others => '0');
             r2 <= (others => '0');
             branch_ctl <= "11";
+            write_back_enable <= '0';
 
         elsif opcode = "000011" then
             -- jal
@@ -207,6 +213,7 @@ begin
             r1 <= (others => '0');
             r2 <= (others => '0');
             branch_ctl <= "11";
+            write_back_enable <= '0';
             -- TODO: indicate the need to store current PC
 
         else
@@ -263,11 +270,13 @@ begin
                     alu_op <= "0000";
                     store <= '1';
                     byte <= '0';
+                    write_back_enable <= '0';
 
                 when "101011" =>
                     -- sw
                     alu_op <= "0000";
                     store <= '1';
+                    write_back_enable <= '0';
 
                 when "001010" =>
                     -- stli
@@ -281,6 +290,7 @@ begin
                     immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
                     r1 <= (others => '0');
                     r2 <= (others => '0');
+                    write_back_enable <= '0';
 
                 when "000101" =>
                     -- bne
@@ -290,6 +300,7 @@ begin
                     immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
                     r1 <= (others => '0');
                     r2 <= (others => '0');
+                    write_back_enable <= '0';
 
                 when others =>
                     null;
