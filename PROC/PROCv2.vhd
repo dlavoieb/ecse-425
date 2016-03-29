@@ -20,6 +20,7 @@ n_reset : in std_logic; -- Active low reset signal
 data_in : in std_logic_vector (31 downto 0); --  Connects with ex_mem_data_out
 address_in : in std_logic_vector(31 downto 0); --  Connects with ex_ALU_result_out - Truncated down to 5 lower bits
 mem_access_write : in std_logic;  -- Connects with ex_storeen_out
+mem_access_load: in std_logic;
 byte : in std_logic; -- when '1' you are interacting with the memory in word otherwise in byte
 register_access_in : in std_logic; -- Connects with ex_reg_en_out
 register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connects with ex_dest_regadd_out (passthrough)
@@ -163,6 +164,7 @@ signal ex_WB_enable_out : std_logic;
 signal mem_data_in_buffer:std_logic_vector (31 downto 0);
 signal mem_address_in_buffer:std_logic_vector (31 downto 0);
 signal mem_access_write_in_buffer: std_logic;
+signal mem_access_load_in_buffer: std_logic;
 signal mem_byte_in_buffer : std_logic;
 signal mem_WB_enable_in_buffer : std_logic;
 signal mem_WB_address_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
@@ -187,7 +189,7 @@ begin
 IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
 EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_WB_enable_out);
 IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
-MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_WB_data_out);
+MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer ,mem_access_load_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_WB_data_out);
 
 
 clk<=clock;
@@ -232,7 +234,7 @@ if falling_edge(clock) then
 		ex_stall_in_buffer<=ex_stall_in_buffer0;
 
 		ex_byte_in_buffer<=id_byte_out;
-		ex_WB_enable_in_buffer<=ex_WB_enable_out;
+		ex_WB_enable_in_buffer<=id_WB_enable_out;
 	
 
 		--EX/MEM Buffer Latching
@@ -242,6 +244,7 @@ if falling_edge(clock) then
 		mem_data_in_buffer<=ex_mem_data_out;
 		mem_byte_in_buffer<=ex_byte_out;
 		mem_WB_enable_in_buffer<=ex_WB_enable_out;
+		mem_access_load_in_buffer<=ex_loaden_out;
 
 		--MEM/WB(ID) buffer latching
 		wb_WB_data_in_buffer<=mem_WB_data_out;

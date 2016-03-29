@@ -10,6 +10,7 @@ entity MEM is
   data_in : in std_logic_vector (31 downto 0); --  Connects with ex_mem_data_out
   address_in : in std_logic_vector(31 downto 0); --  Connects with ex_ALU_result_out - Truncated down to 5 lower bits
   mem_access_write : in std_logic;  -- Connects with ex_storeen_out
+  mem_access_load : in std_logic;
   byte : in std_logic; -- when '1' you are interacting with the memory in word otherwise in byte
   register_access_in : in std_logic; -- Connects with ex_reg_en_out
   register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connects with ex_dest_regadd_out (passthrough)
@@ -41,6 +42,8 @@ end entity;
 
 architecture behavior of MEM is
 
+signal data : std_logic_vector(31 downto 0);
+
 begin
   data_memory : ENTITY work.Data_Memory
   PORT MAP (
@@ -51,12 +54,19 @@ begin
       write_adr => address_in(reg_adrsize-1 downto 0),-- address write
       port_adr  => address_in(reg_adrsize-1 downto 0), -- Port 1 read address :=(others =>'Z')
       byte => byte,
-      port_out  => data_out  -- Read port 1
+      port_out  => data -- Read port 1
   );
 
   process(clk, n_reset)
   begin
+    if (rising_edge(clk)) then
     register_access_out <= register_access_in;  --Pass through reg access signal
     register_access_add_out <= register_access_add_in;
+        if (mem_access_load = '1') then
+        data_out<=data;
+        else
+        data_out<=address_in;
+        end if;
+    end if;
   end process ; -- mem_cycle
   end behavior;

@@ -5,14 +5,14 @@ use work.memory_arbiter_lib.all;
 
 entity MEM is
   port(
-  clk   : in  std_logic;  -- Clock signal
-  n_reset : in std_logic; -- Active low reset signal
-  data_in : in std_logic_vector (31 downto 0); --  Connects with ex_mem_data_out
-  address_in : in std_logic_vector(31 downto 0); --  Connects with ex_ALU_result_out - Truncated down to 5 lower bits
-  mem_access_write : in std_logic;  -- Connects with ex_storeen_out
-  byte : in std_logic; -- when '1' you are interacting with the memory in word otherwise in byte
-  register_access_in : in std_logic; -- Connects with ex_reg_en_out
-  register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connects with ex_dest_regadd_out (passthrough)
+  -clk   : in  std_logic;  -- Clock signal
+  -n_reset : in std_logic; -- Active low reset signal
+  -data_in : in std_logic_vector (31 downto 0); --  Connects with ex_mem_data_out
+  -address_in : in std_logic_vector(31 downto 0); --  Connects with ex_ALU_result_out - Truncated down to 5 lower bits
+  -mem_access_write : in std_logic;  -- Connects with ex_storeen_out
+  -byte : in std_logic; -- when '1' you are interacting with the memory in word otherwise in byte
+  -register_access_in : in std_logic; -- Connects with ex_reg_en_out
+  -register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connects with ex_dest_regadd_out (passthrough)
 
   register_access_out : out std_logic; -- Connects with register access in of WB stage (passthrough)
   register_access_add_out : out std_logic_vector(reg_adrsize-1 downto 0); -- ex_dest_regadd_out (passthrough)

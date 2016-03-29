@@ -122,13 +122,16 @@ sFC<=(others => '0');
 RDAO<=(others => '0');
 MARO<='0';
 MAWO<='0';
-
 mem_data_out<=(others => '0');
 byte_out<='0';
 WB_enable_out<='0';
 
 
 elsif rising_edge(clock) then
+
+		RDAO<=(others => '0');
+		mem_data_out<=(others => '0');
+
 		--MUX 1
 		A1<= RSD;
 		B1<= (others => '0');
@@ -152,8 +155,8 @@ elsif rising_edge(clock) then
 		sFC<= FCode;
 		
 		--Forwarding signals
-		RDAO<=RDAI;
-		MARO<=MARI;
+		RDAO<=RDAI ;
+		MARO<=MARI; 
 		MAWO<=MAWI;
 		mem_data_out<=RTD;
 		WB_enable_out<=WB_enable_in;
