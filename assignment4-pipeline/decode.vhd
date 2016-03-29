@@ -13,6 +13,7 @@ entity decode is
         write_enable : in std_logic; -- from write back stage
         write_register_address : in std_logic_vector(reg_adrsize-1 downto 0); -- from write back stage
         write_register_data : in std_logic_vector(31 downto 0); -- from write back stage
+        write_back_enable : out std_logic; -- write-back stage is expected to write to regs
 
         alu_op : out std_logic_vector (3 downto 0); -- ALU function code
         reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
@@ -23,6 +24,7 @@ entity decode is
         
         load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
         store : out std_logic; -- indicates if the mem stage should use the result of alu as address for store operation
+        byte : out std_logic;
         use_imm : out std_logic; -- indicate if alu should use value immediate for input 2
         use_pc : out std_logic; -- indicate if alu should use value of pc for input 1
 
@@ -78,6 +80,9 @@ begin
 
             load <= '0';
             store <='0';
+            byte <= '0';
+
+            write_back_enable <= '1';
             
             r1 <= rs;
             r2 <= rt;
@@ -103,6 +108,7 @@ begin
                     when "011010" =>
                         -- div
                         alu_op <= "0010";
+                        write_back_enable <= '0';
 
                     when "100111" =>
                         -- nor
@@ -127,7 +133,8 @@ begin
                     when "010100" =>
                         -- mult
                         alu_op <= "0111";
-                    
+                        write_back_enable <= '0';
+
                     when "010000" =>
                         -- mfhi
                         alu_op <= "0101";
@@ -168,11 +175,13 @@ begin
                         use_pc <= '1';
                         r2 <= rs;
                         branch_ctl <= "11"; 
+                        write_back_enable <= '0';
                 
                     when others =>
                         alu_op <= "0000";   
                         r1 <= "00000";
                         r2 <= "00000";
+                        write_back_enable <= '0';
                 end case ;
 
             elsif opcode = "000010" then
@@ -181,6 +190,7 @@ begin
                 use_pc <= '1';
                 use_imm <= '1';
                 branch_ctl <= "11";
+                write_back_enable <= '0';
 
             elsif opcode = "000011" then
                 -- jal
@@ -188,6 +198,7 @@ begin
                 use_pc <= '1';
                 use_imm <= '1';
                 branch_ctl <= "11";
+                write_back_enable <= '0';
                 -- TODO: indicate the need to store current PC
 
             else
@@ -217,35 +228,25 @@ begin
                         -- lb
                         alu_op <= "0000";
                         load <= '1';
+                        byte <= '1';
                     
-                    when "100101" =>
-                        -- lhu
-                        alu_op <= "0000";
-                        load <= '1';
-
-                    when "110000" =>
-                        -- ll
-                        alu_op <= "0000";
-                        load <= '1';
-
                     when "100011" =>
                         -- lw
                         alu_op <= "0000";
                         load <= '1'; 
-                    when "001111" =>
-                        -- lui
-                        alu_op <= "0100"; 
-                        load <= '1'; 
-
+                    
                     when "101000" =>
                         -- sb
                         alu_op <= "0000";
                         store <= '1';
+                        write_back_enable <= '0';
+                        byte <= '1';
 
                     when "101011" =>
                         -- sw
                         alu_op <= "0000";
                         store <= '1';
+                        write_back_enable <= '0';
 
                     when "001010" =>
                         -- stli
@@ -257,6 +258,7 @@ begin
                         branch_ctl <= "01";
                         use_pc <= '1';
                         immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
+                        write_back_enable <= '0';
                  
 
                     when "000101" =>
@@ -265,6 +267,7 @@ begin
                         branch_ctl <= "10";
                         immediate_out <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out'length))) sll 2);
                         use_pc <= '1';
+                        write_back_enable <= '0';
 
                     when others =>
                         null;
