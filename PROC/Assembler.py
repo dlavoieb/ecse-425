@@ -3,8 +3,6 @@ __author__ = 'David Lavoie-Boutin'
 
 import re
 import json
-import math
-import sys
 
 ## Add a space at periodic intervals 
 #
@@ -22,7 +20,7 @@ def encrypt(string, length):
 # the sign bit.
 def twos_complement(value, bits):
     if value < 0:
-        value = ( 1<<bits ) + value
+        value += (1 << bits)
     formatstring = '{:0%ib}' % bits
     return formatstring.format(value)
 
@@ -47,7 +45,7 @@ class Assembler(object):
         self.file_temp = open(input_file + ".json", 'w')
         self.file_out = open(input_file + ".bin", 'w')
         self.mips_isa_file = open(mips_isa_file, 'r')
-        self.misp_isa = json.load(self.mips_isa_file)
+        self.mips_isa = json.load(self.mips_isa_file)
 
         self.line_number = 0
         self.labels = {}
@@ -104,7 +102,7 @@ class Assembler(object):
     #
     def build_machine_code(self, instruction):
         try:
-            prop = self.misp_isa[instruction[1]]
+            prop = self.mips_isa[instruction[1]]
         except KeyError:
             print("Invalid instruction identifier")
             print(instruction)
@@ -225,8 +223,8 @@ class Assembler(object):
             else:
                 raise KeyError("Label already exists in program")
 
-        args = re.findall(self.argument_regex, line)
-        self.queue.append([self.line_number] + args)
+        arguments = re.findall(self.argument_regex, line)
+        self.queue.append([self.line_number] + arguments)
         self.line_number += 1
 
     ## Destructor releases the files handles
@@ -234,7 +232,7 @@ class Assembler(object):
         self.file_in.close()
         self.file_temp.close()
         self.mips_isa_file.close()
-        print "Program terminated"
+        print "Program terminated cleanly"
 
 if __name__ == '__main__':
 
@@ -242,7 +240,7 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser()
     parser.add_option("-i", "--isa", dest="isa_file",
-                      help="misp isa description file, should be the provided 'misp-isa.json' file", default=None)
+                      help="mips isa description file, should be the provided 'mips-isa.json' file", default=None)
     parser.add_option("-a", "--assembly", dest="assembly_file",
                       help="The mips program to assemble", default=None)
     (options, args) = parser.parse_args()
@@ -251,7 +249,6 @@ if __name__ == '__main__':
         isa_file = options.isa_file
     else:
         isa_file = None
-
         print 'ERROR: MIPS ISA file not found!'
         exit(1)
 
@@ -259,14 +256,8 @@ if __name__ == '__main__':
         assembly_file = options.assembly_file
     else:
         assembly_file = None
-
         print 'ERROR: Assembly program file not found!'
         exit(1)
 
-    try:
-        assembler = Assembler(assembly_file, isa_file)
-        assembler.run()
-    except IndexError:
-        print("File missing. Try again:\n\n./Assembler.py [file]")
-        quit(1)
-    
+    assembler = Assembler(assembly_file, isa_file)
+    assembler.run()
