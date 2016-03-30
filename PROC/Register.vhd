@@ -15,7 +15,7 @@ use ieee.numeric_std.all;
 --  TODO: Define reg_adrsize
 --        Define reg_depth
 --        Figure out addressing and fixed word width or not
-    
+
 
 use work.memory_arbiter_lib.all;
 
@@ -46,12 +46,12 @@ entity Registers is
         end loop;
       elsif rising_edge(clk) then
         if write_enable = '1' then
-          register_signal(to_integer(unsigned(write_adr))) <= write_in;  -- Write in data
+          if to_integer(unsigned(write_adr)) /= 0 then  -- Write protection for register 0
+            register_signal(to_integer(unsigned(write_adr))) <= write_in;  -- Write in data
+          end if;
         end if;
       end if;
     end process ;
     port1_out <= register_signal(to_integer(unsigned(port1_adr)));
     port2_out <= register_signal(to_integer(unsigned(port2_adr)));
   end architecture ;
-
-
