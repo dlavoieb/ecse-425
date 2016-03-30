@@ -9,6 +9,8 @@ Author:
 
 VHDL description of a 5-stage mips pipeline implementing early branch resolution, forwarding and hazard detection. This processor was implemented as a project deliverable for ECSE 425, Computer Organisation and Architecture.
 
+*For testing instruction, jump to the testing [section](https://github.com/dlavoieb/ecse-425#testing)*
+
 ## Assembler
 
 The assembler translates a program written in MIPS assembly to its binary format, ready to be executed by our processor. 
@@ -70,10 +72,10 @@ Simply feed the proper signals from EX and MEM back to the register file in the 
 
 ## Testing
 
-1- Assemble the program to a binary file.
-2- Rename that compiled file to `Init.dat`
-3- Move that file in the project folder with the processor
-4- Run the test script `processor.tcl`
+ 1. Assemble the program to a binary file.
+ 2. Rename that compiled file to `Init.dat`
+ 3. Move that file in the project folder with the processor
+ 4. Run the test script `processor.tcl`
 
 The script will load the instruction content in `Init.dat` inside the instruction memory, it will compile all the components and start the simulation. 
 
