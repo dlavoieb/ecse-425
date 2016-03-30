@@ -316,8 +316,8 @@ begin
     reg1_out <= reg1_out_internal;
     reg2_out <= reg2_out_internal;
     
-    reg1_add <= r1;
-    reg2_add <= r2;
+    reg1_addr <= r1;
+    reg2_addr <= r2;
 
     dest : process( immediate_out_internal, offset_select, reg2_out_internal )
     begin

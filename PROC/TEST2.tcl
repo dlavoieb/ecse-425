@@ -79,6 +79,32 @@ sim:/PROCv2/wb_WB_data_in_buffer
 }
 ;
 
+proc runsim {} {
+      vsim PROCv2
+    
+    AddWaves
+;#run 1 ns
+  force -deposit /PROCv2/if_pc_enable_in_buffer 0 0 ns
+  force -deposit /PROCv2/MEMstage/mem_access_write 0 0
+  force -deposit /PROCv2/MEMstage/data_in "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0
+  force -deposit /PROCv2/MEMstage/data_out "00000000000000000000000000000000" 0
+  force -deposit /PROCv2/MEMstage/address_in "00000000000000000000000000000000" 0
+  force -deposit /PROCv2/MEMstage/byte 0 0
+
+    GenerateCPUClock
+
+    force -deposit /PROCv2/reset 0 0  
+    
+
+  loadInstructions
+  run 1 ns
+  force -deposit /PROCv2/if_pc_in_buffer "00000000000000000000000000110000" 0
+  force -deposit /PROCv2/if_pc_enable_in_buffer 1 0 ns
+  force -deposit /PROCv2/reset 1 1
+    run 10 ns
+
+}
+
 proc loadInstructions {} {
   force -deposit PROCv2/IFstage/instruction_memory/initialize 0 0 ns, 1 1 ns, 0 2 ns
   ;#run 1 ns ;#Force signals to update right away
@@ -111,31 +137,9 @@ vcom PROCv2.vhd
 
     ; # Start Simulation
 
-    vsim PROCv2
-    
-    AddWaves
-;#run 1 ns
-  force -deposit /PROCv2/if_pc_enable_in_buffer 0 0 ns
-  force -deposit /PROCv2/MEMstage/mem_access_write 0 0
-  force -deposit /PROCv2/MEMstage/data_in "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0
-  force -deposit /PROCv2/MEMstage/data_out "00000000000000000000000000000000" 0
-  force -deposit /PROCv2/MEMstage/address_in "00000000000000000000000000000000" 0
-  force -deposit /PROCv2/MEMstage/byte 0 0
-
-    GenerateCPUClock
-
-    force -deposit /PROCv2/reset 0 0  
-    
-
-  loadInstructions
-  run 1 ns
-  force -deposit /PROCv2/if_pc_in_buffer "00000000000000000000000000110000" 0
-  force -deposit /PROCv2/if_pc_enable_in_buffer 1 0 ns
-  force -deposit /PROCv2/reset 1 1
-    run 10 ns
 
 }
 
-Init
 
-run 5 ns
+
+

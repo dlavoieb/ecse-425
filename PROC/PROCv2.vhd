@@ -43,6 +43,8 @@ write_register_data : in std_logic_vector(31 downto 0);
 alu_op : out std_logic_vector (3 downto 0); -- ALU function code
 reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
 reg2_out : out std_logic_vector(31 downto 0) ; -- ALU second element
+reg1_addr : out std_logic_vector(reg_adrsize-1 downto 0) ;
+reg2_addr : out std_logic_vector(reg_adrsize-1 downto 0) ;
 immediate_out : out std_logic_vector (31 downto 0); -- sign extended immediate value
 dest_register_address : out std_logic_vector (reg_adrsize-1 downto 0); -- destination register address for write back stage
 load : out std_logic; -- indicates if the mem stage should use the result of alu as address for load
@@ -133,6 +135,8 @@ signal id_useimm_out:std_logic;
 signal id_branch_out : std_logic;
 signal id_byte_out : std_logic;
 signal id_WB_enable_out : std_logic;
+signal id_reg1_addr_out : std_logic_vector(reg_adrsize-1 downto 0) ;
+signal id_reg2_addr_out : std_logic_vector(reg_adrsize-1 downto 0) ;
 
 --EX in buffers
 signal ex_r1_in_buffer:std_logic_vector (31 downto 0);
@@ -186,7 +190,7 @@ signal wb_WB_data_in_buffer: std_logic_vector (31 downto 0);
 begin
 
 --instantiate stages
-IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
+IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out, id_reg1_addr_out,id_reg2_addr_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
 EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_WB_enable_out);
 IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
 MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer ,mem_access_load_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_WB_data_out);
