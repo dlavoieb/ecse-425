@@ -18,6 +18,9 @@ entity decode is
         reg1_out : out std_logic_vector(31 downto 0) ; -- ALU first element
         reg2_out : out std_logic_vector(31 downto 0) ; -- ALU second element
 
+        reg1_addr : out std_logic_vector(reg_adrsize-1 downto 0) ;
+        reg2_addr : out std_logic_vector(reg_adrsize-1 downto 0) ;
+
         immediate_out : out std_logic_vector (31 downto 0); -- sign extended immediate value
         dest_register_address : out std_logic_vector (reg_adrsize-1 downto 0); -- destination register address for write back stage
 
@@ -312,6 +315,9 @@ begin
     immediate_out <= immediate_out_internal;
     reg1_out <= reg1_out_internal;
     reg2_out <= reg2_out_internal;
+    
+    reg1_add <= r1;
+    reg2_add <= r2;
 
     dest : process( immediate_out_internal, offset_select, reg2_out_internal )
     begin
