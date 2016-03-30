@@ -62,6 +62,26 @@ The output of this stage include (but not limited to):
 
 This stage wraps the ALU operations along with some multiplexer functions to allow for forwarding. 
 
+| ALU Operation | Function Code |
+|:-------------:|:-------------:|
+| ADD			| 0000			|
+| AND			| 0001			|
+| DIV			| 0010			|
+| EQUALS		| 0011			|
+| LUI			| 0100			|
+| MFHI			| 0101			|
+| MFLO			| 0110			|
+| MULT			| 0111			|
+| NOR			| 1000			|
+| OR 			| 1001			|
+| SLL			| 1010			|
+| SLT			| 1011			|
+| SRA			| 1100			|
+| SRL			| 1101			|
+| SUB			| 1110			|
+| XOR			| 1111			|
+
+
 ### Memory
 
 This is where the interface with data memory happens. Data content and address are computer in the execute stage and fed to the memory.
