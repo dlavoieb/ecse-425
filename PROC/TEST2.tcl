@@ -119,9 +119,9 @@ proc Init {} {
     vlib work
 
     #Compile
-vcom ../assignment3-mem_arbiter/Memory_in_Byte.vhd
-vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
-vcom ../assignment3-mem_arbiter/Main_Memory.vhd
+vcom Memory_in_Byte.vhd
+vcom memory_arbiter_lib.vhd
+vcom Main_Memory.vhd
 vcom Data_Mem.vhd
 vcom MEM.vhd
 vcom fetch.vhd

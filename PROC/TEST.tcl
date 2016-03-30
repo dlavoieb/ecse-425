@@ -53,7 +53,7 @@ proc Init {} {
 
     #Compile
 
-vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
+vcom memory_arbiter_lib.vhd
 vcom shifter.vhd
 vcom Register.vhd
 vcom PC.vhd

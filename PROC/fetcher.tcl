@@ -53,9 +53,9 @@ proc InitFetch {} {
   vlib work
 
   ;#Compile the fetch stage and its subcomponents
-  vcom ../assignment3-mem_arbiter/Memory_in_Byte.vhd
-  vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
-  vcom ../assignment3-mem_arbiter/Main_Memory.vhd
+  vcom Memory_in_Byte.vhd
+  vcom memory_arbiter_lib.vhd
+  vcom Main_Memory.vhd
   vcom PC.vhd
   vcom fetch.vhd
 

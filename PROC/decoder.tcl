@@ -70,7 +70,7 @@ proc Init {} {
     #Compile
 
     vcom ALU.vhd
-    vcom ../assignment3-mem_arbiter/memory_arbiter_lib.vhd
+    vcom memory_arbiter_lib.vhd
     vcom shifter.vhd
     vcom Register.vhd
     vcom comparator.vhd
