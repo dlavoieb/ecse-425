@@ -250,11 +250,16 @@ if __name__ == '__main__':
     if options.isa_file is not None:
         isa_file = options.isa_file
     else:
+        isa_file = None
+
         print 'ERROR: MIPS ISA file not found!'
         exit(1)
+
     if options.assembly_file is not None:
         assembly_file = options.assembly_file
     else:
+        assembly_file = None
+
         print 'ERROR: Assembly program file not found!'
         exit(1)
 
