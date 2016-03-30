@@ -14,9 +14,13 @@ RDAO	: out STD_LOGIC_VECTOR (4 downto 0);
 
 FCode: in std_logic_vector(3 downto 0);
 
+mem_forward_data: in std_logic_vector (31 downto 0);
+WB_forward_data: in std_logic_vector (31 downto 0);
+
 clock   : in  STD_LOGIC;
 n_reset: in std_logic;
 
+use_imm: in std_logic;
 D1Sel1  : in  STD_LOGIC;
 D1Sel0   : in  STD_LOGIC;
 
@@ -39,6 +43,7 @@ byte_in:in std_logic;
 WB_enable_in: in std_logic;
 
 byte_out:out std_logic;
+alu_result_in: in STD_LOGIC_VECTOR (31 downto 0);
 WB_enable_out: out std_logic
 
 
@@ -78,6 +83,7 @@ signal sRS: std_logic_vector(31 downto 0);
 signal sRT: std_logic_vector(31 downto 0);
 signal sRES: std_logic_vector(31 downto 0);
 signal sFC: std_logic_vector(3 downto 0);
+signal arg2: std_logic_vector(31 downto 0);
 signal sZERO: std_logic;
 
 signal SEL10: std_logic;
@@ -103,9 +109,7 @@ ALU1: ALU port map(sclock, sRS, sRT, sFC, sRES, sZERO);
 mux1: mux41 port map(SEL10,SEL11,A1,B1,C1,D1,X1);
 mux2: mux41 port map(SEL20, SEL21, A2, B2, C2, D2, X2);
 
-
-
-main: process (clock, n_reset,ex_stall)
+main: process (clock, n_reset, ex_stall)
 begin
 
 if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
@@ -114,10 +118,6 @@ A1<= (others => '0');
 B1<= (others => '0');
 C1<= (others => '0');
 D1<= (others => '0');
-A2<= (others => '0');
-B2<= (others => '0');
-C2<= (others => '0');
-D2<= (others => '0');
 sFC<=(others => '0');
 RDAO<=(others => '0');
 MARO<='0';
@@ -132,23 +132,13 @@ elsif rising_edge(clock) then
 		RDAO<=(others => '0');
 		mem_data_out<=(others => '0');
 
-		--MUX 1
-		A1<= RSD;
-		B1<= (others => '0');
-		C1<= (others => '0');
-		D1<= (others => '0');
-		SEL11<= D1Sel1;
-		SEL10<= D1Sel0;
-		
+		--data selector
+		if (use_imm = '1') then
+		arg2<=imm;
+		else 
+		arg2<=RTD;
+		end if;
 
-		--MUX2
-		A2<= RTD;
-		B2<= IMM;
-		C2<= (others => '0');
-		D2<= (others => '0');
-		SEL21<= D2Sel1; --0
-		SEL20<= D2Sel0; --1
-		
 
 		--ALU1
 		sclock<= clock;
@@ -169,6 +159,48 @@ end process;
 sRT<=X2 ;
 sRS<=X1 ;
 RDD<= sRES;
+
+--mux 2
+with n_reset select A2 <=
+arg2 when '1',
+(others => '0') when others;
+
+with n_reset select B2 <=
+alu_result_in when '1',
+(others => '0') when others;
+
+with n_reset select C2 <=
+mem_forward_data when '1',
+(others => '0') when others;
+
+with n_reset select D2 <=
+WB_forward_data when '1',
+(others => '0') when others;
+
+
+SEL21<= D2Sel1;
+SEL20<= D2Sel0;
+
+
+--mux 1
+with n_reset select A1 <=
+RSD when '1',
+(others => '0') when others;
+
+with n_reset select B1 <=
+alu_result_in when '1',
+(others => '0') when others;
+
+with n_reset select C1 <=
+mem_forward_data when '1',
+(others => '0') when others;
+
+with n_reset select D1 <=
+WB_forward_data when '1',
+(others => '0') when others;
+
+SEL11<= D1Sel1;
+SEL10<= D1Sel0;
 
 end foo;
 
