@@ -56,3 +56,25 @@ The output of this stage include (but not limited to):
 - Immediate selection control signal
 - Memory load or store control signal
 
+### Execute
+
+This stage wraps the ALU operations along with some multiplexer functions to allow for forwarding. 
+
+### Memory
+
+This is where the interface with data memory happens. Data content and address are computer in the execute stage and fed to the memory.
+
+### Write Back stage
+
+Simply feed the proper signals from EX and MEM back to the register file in the decode stage.
+
+## Testing
+
+1- Assemble the program to a binary file.
+2- Rename that compiled file to `Init.dat`
+3- Move that file in the project folder with the processor
+4- Run the test script `processor.tcl`
+
+The script will load the instruction content in `Init.dat` inside the instruction memory, it will compile all the components and start the simulation. 
+
+**You might need to change the run duration to make sure you run the processor long enough.**
