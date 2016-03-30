@@ -15,7 +15,7 @@ The assembler translates a program written in MIPS assembly to its binary format
 
 ### Requirements
 
-The assembler requires Python version 2.7 which can be downloaded [from here](https://www.python.org/downloads)
+The assembler requires Python version 2.7 which can be downloaded [from here](https://www.python.org/downloads/release/python-2711/)
 
 ### Usage
 
@@ -32,3 +32,5 @@ Assembler.py -i mips-ias.json -a fib.asm
 The output of the assembler is a file, which will be at the same location as the input assembly file. Its name will be the same as the assembly with the `.bin` suffix added.
 
 ## Processor
+
+![mips pipeline group 10 - mips processor v1](https://cloud.githubusercontent.com/assets/5551220/14159058/cd0525b0-f6a1-11e5-8e37-bbeb88e81a52.png)
