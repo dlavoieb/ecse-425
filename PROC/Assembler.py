@@ -237,8 +237,29 @@ class Assembler(object):
         print "Program terminated"
 
 if __name__ == '__main__':
+
+    import optparse
+
+    parser = optparse.OptionParser()
+    parser.add_option("-i", "--isa", dest="isa_file",
+                      help="misp isa description file, should be the provided 'misp-isa.json' file", default=None)
+    parser.add_option("-a", "--assembly", dest="assembly_file",
+                      help="The mips program to assemble", default=None)
+    (options, args) = parser.parse_args()
+
+    if options.isa_file is not None:
+        isa_file = options.isa_file
+    else:
+        print 'ERROR: MIPS ISA file not found!'
+        exit(1)
+    if options.assembly_file is not None:
+        assembly_file = options.assembly_file
+    else:
+        print 'ERROR: Assembly program file not found!'
+        exit(1)
+
     try:
-        assembler = Assembler(sys.argv[1], "./mips-isa.json")
+        assembler = Assembler(assembly_file, isa_file)
         assembler.run()
     except IndexError:
         print("File missing. Try again:\n\n./Assembler.py [file]")
