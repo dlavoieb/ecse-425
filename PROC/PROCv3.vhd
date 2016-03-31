@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.memory_arbiter_lib.all;
 
-entity PROCv2 is
+entity PROCv3 is
 port(
 clock : in std_logic;
 reset: in std_logic
