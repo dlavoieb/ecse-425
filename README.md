@@ -37,7 +37,9 @@ The output of the assembler is a file, which will be at the same location as the
 
 ![mips pipeline group 10 - mips processor v1](https://cloud.githubusercontent.com/assets/5551220/14159058/cd0525b0-f6a1-11e5-8e37-bbeb88e81a52.png)
 
-The processor description is separated in stages, starting with fetch.vhd, decode.vhd, EX.vhd and MEM.vhd. All the stages are integrated with the control unit for forwarding and hazard detection in the main component: PRCO.vhd.
+The processor description is separated in stages, starting with fetch.vhd, decode.vhd, EX.vhd and MEM.vhd. All the stages are integrated with the control unit for forwarding and hazard detection in the main component: PROC.vhd.
+
+In this implementation, the pipeline buffers (yellow blocks in the diagram) latch their values on the falling edge. This insures that on the next rising edge, the values are available for the stages to compute with. This is our simplification of the setup time requirement.
 
 ### Instruction Fetch
 
