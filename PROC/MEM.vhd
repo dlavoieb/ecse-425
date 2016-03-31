@@ -53,8 +53,8 @@ begin
       n_rst => n_reset, -- Active low reset signal
       write_enable => mem_access_write,  -- Write control signal
       write_in  => data_selected, -- Input data port
-      write_adr => address_in(reg_adrsize-1 downto 0),-- address write
-      port_adr  => address_in(reg_adrsize-1 downto 0), -- Port 1 read address :=(others =>'Z')
+      write_adr => address_in(31 downto 0),-- address write
+      port_adr  => address_in(31 downto 0), -- Port read address :=(others =>'Z')
       byte => byte,
       port_out  => data -- Read port 1
   );

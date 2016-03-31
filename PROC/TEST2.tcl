@@ -21,7 +21,7 @@ sim:/PROCv2/id_reg_data_in_buffer\
 sim:/PROCv2/id_pc_in_buffer
 
 add wave -group "ID out signals" sim:/PROCv2/id_pc_out\
-sim:/PROCv2/id_alu_op_out\
+-radix alu sim:/PROCv2/id_alu_op_out\
 sim:/PROCv2/id_r1_out\
 sim:/PROCv2/id_r2_out\
 sim:/PROCv2/id_imm_out\
@@ -74,14 +74,14 @@ add wave -group "WB in buffers" sim:/PROCv2/wb_WB_enable_in_buffer\
 sim:/PROCv2/wb_WB_address_in_buffer\
 sim:/PROCv2/wb_WB_data_in_buffer
 
-    
-    
+
+
 }
 ;
 
 proc runsim {} {
       vsim PROCv2
-    
+
     AddWaves
 ;#run 1 ns
   force -deposit /PROCv2/if_pc_enable_in_buffer 0 0 ns
@@ -93,8 +93,8 @@ proc runsim {} {
 
     GenerateCPUClock
 
-    force -deposit /PROCv2/reset 0 0  
-    
+    force -deposit /PROCv2/reset 0 0
+
 
   loadInstructions
   run 1 ns
@@ -110,8 +110,36 @@ proc loadInstructions {} {
   ;#run 1 ns ;#Force signals to update right away
 }
 
-proc GenerateCPUClock {} { 
+proc GenerateCPUClock {} {
     force -deposit /PROCv2/clock 0 0 ns, 1 0.5 ns -repeat 1 ns
+}
+
+proc RadixDefine {} {
+    radix define alu {
+        4'b0000 "ADD",
+        4'b0001 "AND",
+        4'b0010 "DIV",
+        4'b0011 "EQUALS",
+        4'b0100 "LUI",
+        4'b0101 "MFHI",
+        4'b0110 "MFLO",
+        4'b0111 "MULT",
+        4'b1000 "NOR",
+        4'b1001 "OR",
+        4'b1010 "SLL",
+        4'b1011 "SLT",
+        4'b1100 "SRA",
+        4'b1101 "SRL",
+        4'b1110 "SUB",
+        4'b1111 "XOR"
+    }
+
+    radix define br_ctl {
+        2'b00 "NO",
+        2'b01 "EQ",
+        2'b10 "NE",
+        2'b11 "J"
+    }
 }
 
 
@@ -122,6 +150,7 @@ proc Init {} {
 vcom Memory_in_Byte.vhd
 vcom memory_arbiter_lib.vhd
 vcom Main_Memory.vhd
+vcom memory_constants.vhd
 vcom Data_Mem.vhd
 vcom MEM.vhd
 vcom fetch.vhd
@@ -135,11 +164,5 @@ vcom mux41.vhd
 vcom EX.vhd
 vcom PROCv2.vhd
 
-    ; # Start Simulation
-
-
+RadixDefine
 }
-
-
-
-

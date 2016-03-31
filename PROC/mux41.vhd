@@ -11,12 +11,15 @@ entity mux41 is
            X   : out STD_LOGIC_VECTOR (31 downto 0));
 end mux41;
 
-architecture Behavioral of mux41 is
+architecture arch of mux41 is
+  signal ctl : std_logic_vector(1 downto 0) ;
 begin
-    X <= 
-    A when (SEL1= '0' AND SEL0= '0') else
-    B when (SEL1= '0' AND SEL0= '1') else
-    C when (SEL1= '1' AND SEL0= '0') else
-    D when (SEL1= '1' AND SEL0= '1') else
-    (others => '0');
-end Behavioral;
+  ctl <= SEL1 & SEL0;
+  with ctl select X <= 
+    A when "00",
+    B when "01",
+    C when "10",
+    D when "11",
+    (others => '0') when others;
+
+end architecture ; -- arch
