@@ -33,6 +33,11 @@ sim:/PROCv2/id_branch_out\
 sim:/PROCv2/id_byte_out\
 sim:/PROCv2/id_WB_enable_out
 
+add wave -group "Comaprator signals" sim:/procv2/IDstage/reg_comparator/value1\
+sim:/procv2/IDstage/reg_comparator/value2\
+sim:/procv2/IDstage/reg_comparator/ctl\
+sim:/procv2/IDstage/reg_comparator/taken
+
 add wave -group "EX in buffers" sim:/PROCv2/ex_r1_in_buffer\
 sim:/PROCv2/ex_r2_in_buffer\
 sim:/PROCv2/ex_imm_in_buffer\
@@ -86,7 +91,8 @@ add wave -position end  sim:/procv2/EXstage/mux1/A
 add wave -position end  sim:/procv2/EXstage/mux1/X
 add wave -position end  sim:/procv2/EXstage/mux1/ctl
 
-
+add wave -position 6  sim:/procv2/IDstage/branch_dest
+add wave -position 5  sim:/procv2/IDstage/branch_taken_internal
 }
 ;
 

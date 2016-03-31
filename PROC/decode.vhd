@@ -291,8 +291,8 @@ begin
                     branch_ctl <= "01";
                     use_imm <= '0';
                     immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                    r1 <= (others => '0');
-                    r2 <= (others => '0');
+                    -- r1 <= (others => '0');
+                    -- r2 <= (others => '0');
                     write_back_enable <= '0';
 
                 when "000101" =>
@@ -301,8 +301,8 @@ begin
                     use_imm <= '0';
                     branch_ctl <= "10";
                     immediate_out_internal <=  To_StdLogicVector(to_bitvector(std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length))) sll 2);
-                    r1 <= (others => '0');
-                    r2 <= (others => '0');
+                    -- r1 <= (others => '0');
+                    -- r2 <= (others => '0');
                     write_back_enable <= '0';
 
                 when others =>
@@ -315,7 +315,7 @@ begin
     immediate_out <= immediate_out_internal;
     reg1_out <= reg1_out_internal;
     reg2_out <= reg2_out_internal;
-    
+
     reg1_addr <= r1;
     reg2_addr <= r2;
 
