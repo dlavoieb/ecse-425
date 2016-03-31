@@ -17,7 +17,9 @@ entity MEM is
 
   register_access_out : out std_logic; -- Connects with register access in of WB stage (passthrough)
   register_access_add_out : out std_logic_vector(31 downto 0); -- ex_dest_regadd_out (passthrough)
-  data_out : out std_logic_vector(31 downto 0) :=(others =>'Z')
+  forwarded_data_in: in std_logic_vector(31 downto 0);
+  data_out : out std_logic_vector(31 downto 0) :=(others =>'Z');
+  data_in_selected: in std_logic
   );
 end entity;
 
@@ -43,16 +45,16 @@ end entity;
 architecture behavior of MEM is
 
 signal data : std_logic_vector(31 downto 0);
-
+signal data_selected: std_logic_vector(31 downto 0);
 begin
   data_memory : ENTITY work.Data_Memory
   PORT MAP (
       clk => clk,
       n_rst => n_reset, -- Active low reset signal
       write_enable => mem_access_write,  -- Write control signal
-      write_in  => data_in, -- Input data port
+      write_in  => data_selected, -- Input data port
       write_adr => address_in(31 downto 0),-- address write
-      port_adr  => address_in(31 downto 0), -- Port 1 read address :=(others =>'Z')
+      port_adr  => address_in(31 downto 0), -- Port read address :=(others =>'Z')
       byte => byte,
       port_out  => data -- Read port 1
   );
@@ -69,4 +71,9 @@ begin
         end if;
     end if;
   end process ; -- mem_cycle
+
+with data_in_selected select data_selected <=
+forwarded_data_in when '1',
+data_in when others;
+
   end behavior;
