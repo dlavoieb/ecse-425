@@ -5,7 +5,7 @@ Author:
  - Wei-Di Chang
  - David Lavoie-Boutin
  - Muhammad Ali Lashari
- - Sitara Sherrif
+ - Sitara Sheriff
 
 VHDL description of a 5-stage mips pipeline implementing early branch resolution, forwarding and hazard detection. This processor was implemented as a project deliverable for ECSE 425, Computer Organisation and Architecture.
 
@@ -97,8 +97,19 @@ Simply feed the proper signals from EX and MEM back to the register file in the 
  1. Assemble the program to a binary file.
  2. Rename that compiled file to `Init.dat`
  3. Move that file in the project folder with the processor
- 4. Run the test script `processor.tcl`
+ 4. Source the test script `processor.tcl`
+ 5. Initialise the simulation with the command `Init`
+ 6. Run the simulation with the command `runsim`
+
 
 The script will load the instruction content in `Init.dat` inside the instruction memory, it will compile all the components and start the simulation. 
 
 **You might need to change the run duration to make sure you run the processor long enough.**
+
+The input and output of each stage are grouped together, with the clock in the control signal group.
+
+## Current Problems
+
+The secondairy branch `hazard_detection` implements the general mechanics for hazard detection, but thoroug testing has proven inconclusive for many tests. This will be corrected in the next release.
+
+The fibonachi program with integrated stalls will work for now as a replacement.
