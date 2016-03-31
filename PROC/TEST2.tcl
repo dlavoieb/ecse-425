@@ -152,12 +152,12 @@ vcom memory_arbiter_lib.vhd
 vcom Main_Memory.vhd
 vcom memory_constants.vhd
 vcom Data_Mem.vhd
+vcom PC.vhd
 vcom MEM.vhd
 vcom fetch.vhd
 vcom shifter.vhd
 vcom comparator.vhd
 vcom Register.vhd
-vcom PC.vhd
 vcom decode.vhd
 vcom ALU.vhd
 vcom mux41.vhd
