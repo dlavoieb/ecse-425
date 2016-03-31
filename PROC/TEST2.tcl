@@ -164,7 +164,5 @@ vcom mux41.vhd
 vcom EX.vhd
 vcom PROCv2.vhd
 
-    ; # Start Simulation
-
-
+RadixDefine
 }
