@@ -284,11 +284,17 @@ if falling_edge(clock) then
 		wb_WB_address_in_buffer<=mem_WB_address_out;
 
 		--Hazard Detection
-		if (ex_loaden_out='1' AND (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out)) then
+		if (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out) then
 			enable_stall <= '1';
 		else
 			enable_stall <= '0';
 		end if;
+
+		--if (ex_loaden_out='1' AND (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out)) then
+		--	enable_stall <= '1';
+		--else
+		--	enable_stall <= '0';
+		--end if;
 
 end if;
 end process;
