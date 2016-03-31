@@ -7,6 +7,8 @@ sim:/PROCv2/id_reset\
 sim:/PROCv2/if_reset\
 sim:/PROCv2/mem_reset
 
+add wave -group "Hazard Detection" sim:/PROCv3/enable_stall
+
 add wave -group "IF in buffers" sim:/PROCv2/if_pc_in_buffer\
 sim:/PROCv2/if_pc_sel_in_buffer\
 sim:/PROCv2/if_pc_enable_in_buffer
