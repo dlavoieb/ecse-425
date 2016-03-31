@@ -214,7 +214,7 @@ MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,me
 
 clk<=clock;
 id_reset<=reset;
-ex_reset<=reset;
+ex_reset<=reset AND NOT(enable_stall);
 if_reset<=reset;
 mem_reset<=reset;
 
