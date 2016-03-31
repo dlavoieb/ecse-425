@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.memory_arbiter_lib.all;
 
-entity PROCv3 is
+entity PROCv2 is
 port(
 clock : in std_logic;
 reset: in std_logic
@@ -27,7 +27,9 @@ register_access_add_in : in std_logic_vector(reg_adrsize-1 downto 0); -- Connect
 
 register_access_out : out std_logic; -- Connects with register access in of WB stage (passthrough)
 register_access_add_out : out std_logic_vector(reg_adrsize-1 downto 0); -- ex_dest_regadd_out (passthrough)
-data_out : out std_logic_vector(31 downto 0) :=(others =>'Z')
+forwarded_data_in: in std_logic_vector(31 downto 0);
+data_out : out std_logic_vector(31 downto 0) :=(others =>'Z');
+data_in_selected: in std_logic
 	);
 end component;
 
@@ -66,8 +68,11 @@ RDD   : out  STD_LOGIC_VECTOR (31 downto 0);
 RDAI	: in STD_LOGIC_VECTOR (4 downto 0);
 RDAO	: out STD_LOGIC_VECTOR (4 downto 0);
 FCode: in std_logic_vector(3 downto 0);
+mem_forward_data: in std_logic_vector (31 downto 0);
+WB_forward_data: in std_logic_vector (31 downto 0);
 clock   : in  STD_LOGIC;
 n_reset: in std_logic;
+use_imm: in std_logic;
 D1Sel1  : in  STD_LOGIC;
 D1Sel0   : in  STD_LOGIC;
 D2Sel0   : in  STD_LOGIC;
@@ -81,6 +86,7 @@ ex_stall: in std_logic;
 byte_in:in std_logic;
 WB_enable_in: in std_logic;
 byte_out:out std_logic;
+alu_result_in:in STD_LOGIC_VECTOR (31 downto 0);
 WB_enable_out: out std_logic
 
 	);
@@ -154,6 +160,9 @@ signal ex_stall_in_buffer:std_logic;
 signal ex_stall_in_buffer0:std_logic;
 signal ex_byte_in_buffer:std_logic;
 signal ex_WB_enable_in_buffer:std_logic;
+signal ex_alu_result_in:std_logic_vector (31 downto 0);
+signal ex_use_IMM_in: std_logic;
+
 
 --EX out signals
 signal ex_ALU_result_out:std_logic_vector (31 downto 0);--used by mem
@@ -172,6 +181,8 @@ signal mem_access_load_in_buffer: std_logic;
 signal mem_byte_in_buffer : std_logic;
 signal mem_WB_enable_in_buffer : std_logic;
 signal mem_WB_address_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
+signal mem_forwarded_data_in: std_logic_vector (31 downto 0);
+signal mem_data_in_selected: std_logic;
 
 
 --MEM out signals
@@ -185,15 +196,21 @@ signal wb_WB_enable_in_buffer: std_logic;
 signal wb_WB_address_in_buffer:std_logic_vector (reg_adrsize-1 downto 0);
 signal wb_WB_data_in_buffer: std_logic_vector (31 downto 0);
 
-signal enable_stall : std_logic;
+--Forwarding signals
+signal mem_forward_data: std_logic_vector (31 downto 0);
+signal WB_forward_data: std_logic_vector (31 downto 0);
+
+--Hazard Detection
+signal enable_stall: std_logic;
+
 
 begin
 
 --instantiate stages
-IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out,id_reg1_addr_out,id_reg2_addr_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
-EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,clk,ex_reset,ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_WB_enable_out);
+IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out, id_reg1_addr_out,id_reg2_addr_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset);
+EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,mem_forward_data,WB_forward_data ,clk,ex_reset, ex_use_IMM_in, ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_alu_result_in,ex_WB_enable_out);
 IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset);
-MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer ,mem_access_load_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_WB_data_out);
+MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer ,mem_access_load_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_forwarded_data_in,mem_WB_data_out,mem_data_in_selected);
 
 
 clk<=clock;
@@ -211,6 +228,19 @@ id_wenable_in_buffer<=wb_WB_enable_in_buffer;
 id_reg_add_in_buffer<=wb_WB_address_in_buffer;
 id_reg_data_in_buffer<=wb_WB_data_in_buffer;
 
+--unclocked forwarding signals
+mem_forward_data<=wb_WB_data_in_buffer;
+WB_forward_data<=wb_WB_data_in_buffer;
+ex_alu_result_in<=mem_data_in_buffer;
+mem_forwarded_data_in<=wb_WB_data_in_buffer;
+
+
+--Control Unit
+ex_ALUData1_selector0_in_buffer<='0';
+ex_ALUData1_selector1_in_buffer<='0';
+ex_ALUData2_selector0_in_buffer<='0';
+ex_ALUData2_selector1_in_buffer<='0';
+mem_data_in_selected<='0';
 
 proc: process (clock)
 begin
@@ -227,10 +257,7 @@ if falling_edge(clock) then
 		ex_imm_in_buffer <=id_imm_out;
 		ex_dest_regadd_in_buffer <= id_dest_regadd_out;
 		ex_alu_op_in_buffer <=id_alu_op_out;
-		ex_ALUData1_selector0_in_buffer<='0';
-		ex_ALUData1_selector1_in_buffer<='0';
-		ex_ALUData2_selector0_in_buffer<=id_useimm_out;
-		ex_ALUData2_selector1_in_buffer<='0';
+		
 		ex_loaden_in_buffer <=id_loaden_out;
 		ex_storeen_in_buffer <=id_storeen_out;
 
@@ -239,6 +266,7 @@ if falling_edge(clock) then
 
 		ex_byte_in_buffer<=id_byte_out;
 		ex_WB_enable_in_buffer<=id_WB_enable_out;
+		ex_use_IMM_in<=id_useimm_out;
 	
 
 		--EX/MEM Buffer Latching
@@ -261,7 +289,6 @@ if falling_edge(clock) then
 		else
 			enable_stall <= '0';
 		end if;
-
 
 end if;
 end process;
