@@ -228,10 +228,10 @@ id_reg_add_in_buffer<=wb_WB_address_in_buffer;
 id_reg_data_in_buffer<=wb_WB_data_in_buffer;
 
 --unclocked forwarding signals
-mem_forward_data<=wb_WB_data_in_buffer;
-WB_forward_data<=wb_WB_data_in_buffer;
-ex_alu_result_in<=mem_data_in_buffer;
-mem_forwarded_data_in<=wb_WB_data_in_buffer;
+--mem_forward_data<=wb_WB_data_in_buffer;
+--WB_forward_data<=wb_WB_data_in_buffer;
+--ex_alu_result_in<=mem_data_in_buffer;
+--mem_forwarded_data_in<=wb_WB_data_in_buffer;
 
 
 --Control Unit

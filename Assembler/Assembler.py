@@ -30,7 +30,7 @@ class Assembler(object):
     full_line_comment = re.compile(ur'^\s*#.*')
     inline_comment_regex = re.compile(ur'#.+$')
     label_regex = re.compile(ur'^.*?(?=:)')
-    argument_regex = re.compile(ur'([\w|$]+)')
+    argument_regex = re.compile(ur'(-*[\w|$]+)')
     between_parentheses = re.compile(ur'(?<=\().+(?=\))')
     before_parentheses = re.compile(ur'(?<=\s).+(?=\()')
 

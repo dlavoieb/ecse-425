@@ -76,6 +76,17 @@ add wave -group "WB in buffers" sim:/PROCv2/wb_WB_enable_in_buffer\
 sim:/PROCv2/wb_WB_address_in_buffer\
 sim:/PROCv2/wb_WB_data_in_buffer
 
+add wave -group "EX" sim:/PROCv2/EXstage/sRS\
+sim:/PROCv2/EXstage/A1\
+sim:/PROCv2/EXstage/X1\
+sim:/PROCv2/EXstage/RSD\
+sim:/PROCv2/EXstage/sRT\
+sim:/PROCv2/EXstage/sRES\
+sim:/PROCv2/EXstage/arg2
+
+add wave -position end  sim:/procv2/EXstage/mux1/A
+add wave -position end  sim:/procv2/EXstage/mux1/X
+add wave -position end  sim:/procv2/EXstage/mux1/ctl
 
 
 }
