@@ -103,6 +103,8 @@ signal C2: std_logic_vector(31 downto 0);
 signal D2: std_logic_vector(31 downto 0);
 signal X2: std_logic_vector(31 downto 0);
 
+signal RSD1: std_logic_vector(31 downto 0);
+
 
 begin
 ALU1: ALU port map(sclock, sRS, sRT, sFC, sRES, sZERO);
@@ -114,10 +116,6 @@ begin
 
 if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
 
-A1<= (others => '0');
-B1<= (others => '0');
-C1<= (others => '0');
-D1<= (others => '0');
 sFC<=(others => '0');
 RDAO<=(others => '0');
 MARO<='0';
@@ -131,6 +129,7 @@ elsif rising_edge(clock) then
 
 		RDAO<=(others => '0');
 		mem_data_out<=(others => '0');
+		RSD1<=RSD;
 
 		--data selector
 		if (use_imm = '1') then
@@ -184,7 +183,7 @@ SEL20<= D2Sel0;
 
 --mux 1
 with n_reset select A1 <=
-RSD when '1',
+RSD1 when '1',
 (others => '0') when others;
 
 with n_reset select B1 <=

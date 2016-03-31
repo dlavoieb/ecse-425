@@ -74,6 +74,17 @@ add wave -group "WB in buffers" sim:/PROCv2/wb_WB_enable_in_buffer\
 sim:/PROCv2/wb_WB_address_in_buffer\
 sim:/PROCv2/wb_WB_data_in_buffer
 
+add wave -group "EX" sim:/PROCv2/EXstage/sRS\
+sim:/PROCv2/EXstage/A1\
+sim:/PROCv2/EXstage/X1\
+sim:/PROCv2/EXstage/RSD\
+sim:/PROCv2/EXstage/sRT\
+sim:/PROCv2/EXstage/sRES\
+sim:/PROCv2/EXstage/arg2
+
+add wave -position end  sim:/procv2/EXstage/mux1/A
+add wave -position end  sim:/procv2/EXstage/mux1/X
+add wave -position end  sim:/procv2/EXstage/mux1/ctl
 
 
 }
@@ -152,12 +163,12 @@ vcom memory_arbiter_lib.vhd
 vcom Main_Memory.vhd
 vcom memory_constants.vhd
 vcom Data_Mem.vhd
+vcom PC.vhd
 vcom MEM.vhd
 vcom fetch.vhd
 vcom shifter.vhd
 vcom comparator.vhd
 vcom Register.vhd
-vcom PC.vhd
 vcom decode.vhd
 vcom ALU.vhd
 vcom mux41.vhd
