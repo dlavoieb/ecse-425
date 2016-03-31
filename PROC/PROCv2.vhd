@@ -200,6 +200,8 @@ signal wb_WB_data_in_buffer: std_logic_vector (31 downto 0);
 signal mem_forward_data: std_logic_vector (31 downto 0);
 signal WB_forward_data: std_logic_vector (31 downto 0);
 
+--Hazard Detection
+signal enable_stall: std_logic;
 
 begin
 
@@ -212,7 +214,7 @@ MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,me
 
 clk<=clock;
 id_reset<=reset;
-ex_reset<=reset;
+ex_reset<=reset AND NOT(enable_stall);
 if_reset<=reset;
 mem_reset<=reset;
 
@@ -279,6 +281,17 @@ if falling_edge(clock) then
 		wb_WB_data_in_buffer<=mem_WB_data_out;
 		wb_WB_enable_in_buffer<=mem_WB_enable_out;
 		wb_WB_address_in_buffer<=mem_WB_address_out;
+
+		--Hazard Detection
+		if (ex_dest_regadd_out /= (ex_dest_regadd_out'range => '0')) then
+			if (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out) then
+				enable_stall <= '1';
+			else
+				enable_stall <= '0';
+			end if;
+		else
+			enable_stall <= '0';
+		end if;
 
 end if;
 end process;

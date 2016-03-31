@@ -1,7 +1,7 @@
 proc AddWaves {} {
     ;#Add waves we're interested in to the Wave window
 
-add wave -group "Hazard Detection" sim:/PROCv3/enable_stall\
+add wave -group "Hazard Detection" sim:/PROCv3/enable_stall
 
 add wave -group "Control Signals" sim:/PROCv3/clk\
 sim:/PROCv3/ex_reset\
@@ -81,39 +81,8 @@ sim:/PROCv3/wb_WB_data_in_buffer
 }
 ;
 
-proc loadInstructions {} {
-  force -deposit PROCv3/IFstage/instruction_memory/initialize 0 0 ns, 1 1 ns, 0 2 ns
-  ;#run 1 ns ;#Force signals to update right away
-}
-
-proc GenerateCPUClock {} { 
-    force -deposit /PROCv3/clock 0 0 ns, 1 0.5 ns -repeat 1 ns
-}
-
-
-proc Init {} {
-    vlib work
-
-    #Compile
-vcom Memory_in_Byte.vhd
-vcom memory_arbiter_lib.vhd
-vcom Main_Memory.vhd
-vcom Data_Mem.vhd
-vcom MEM.vhd
-vcom fetch.vhd
-vcom shifter.vhd
-vcom comparator.vhd
-vcom Register.vhd
-vcom PC.vhd
-vcom decode.vhd
-vcom ALU.vhd
-vcom mux41.vhd
-vcom EX.vhd
-vcom PROCv3.vhd
-
-    ; # Start Simulation
-
-    vsim PROCv3 -t ps
+proc runsim {} {
+      vsim PROCv3 -t ps
     
     AddWaves
 ;#run 1 ns
@@ -138,6 +107,41 @@ vcom PROCv3.vhd
 
 }
 
-Init
+proc loadInstructions {} {
+  force -deposit PROCv3/IFstage/instruction_memory/initialize 0 0 ns, 1 1 ns, 0 2 ns
+  ;#run 1 ns ;#Force signals to update right away
+}
 
-run 5 ns
+proc GenerateCPUClock {} { 
+    force -deposit /PROCv3/clock 0 0 ns, 1 0.5 ns -repeat 1 ns
+}
+
+
+proc Init {} {
+    vlib work
+
+    #Compile
+vcom Memory_in_Byte.vhd
+vcom memory_arbiter_lib.vhd
+vcom Main_Memory.vhd
+vcom Data_Mem.vhd
+vcom MEM.vhd
+vcom PC.vhd
+vcom fetch.vhd
+vcom shifter.vhd
+vcom comparator.vhd
+vcom Register.vhd
+vcom decode.vhd
+vcom ALU.vhd
+vcom mux41.vhd
+vcom EX.vhd
+vcom PROCv3.vhd
+
+    ; # Start Simulation
+
+
+}
+
+
+
+
