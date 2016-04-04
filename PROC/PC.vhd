@@ -14,15 +14,15 @@ end entity ; -- PC
 architecture arch of PC is
 begin
 
+signal temp : std_logic_vector(31 downto 0);
 program_counter : process( clock )
-variable temp : std_logic_vector(31 downto 0);
 begin
 
     if n_rst = '0' then
-        temp := (OTHERS => '0');
+        temp <= (OTHERS => '0');
     elsif rising_edge(clock) and enable = '1' then
-        temp := pc_in;
+        temp <= pc_in;
     end if ;
-    pc_out <= temp;
 end process ; -- program_counter
+pc_out <= temp;
 end architecture ; -- arch
