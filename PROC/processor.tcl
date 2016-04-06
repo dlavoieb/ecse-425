@@ -7,8 +7,6 @@ sim:/PROCv2/id_reset\
 sim:/PROCv2/if_reset\
 sim:/PROCv2/mem_reset
 
-add wave -group "Hazard Detection" sim:/PROCv2/enable_stall
-
 add wave -group "IF in buffers" -radix unsigned sim:/PROCv2/if_pc_in_buffer\
 -radix binary sim:/PROCv2/if_pc_sel_in_buffer\
 -radix binary sim:/PROCv2/if_pc_enable_in_buffer
@@ -78,7 +76,7 @@ add wave -group "WB in buffers" -radix binary sim:/PROCv2/wb_WB_enable_in_buffer
 ;
 
 proc runsim {} {
-      vsim PROCv2 -t ps
+      vsim PROCv2
 
     AddWaves
 ;#run 1 ns
