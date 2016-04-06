@@ -201,7 +201,9 @@ signal mem_forward_data: std_logic_vector (31 downto 0);
 signal WB_forward_data: std_logic_vector (31 downto 0);
 
 --Hazard Detection
-signal enable_stall: std_logic;
+signal fwd_from_ex_enable: std_logic;
+signal fwd_from_mem_enable: std_logic;
+signal stall_enable: std_logic;
 
 begin
 
@@ -283,14 +285,65 @@ if falling_edge(clock) then
 		wb_WB_address_in_buffer<=mem_WB_address_out;
 
 		--Hazard Detection
+
+		--single cycle: ex_dest address = id reg address
 		if (ex_dest_regadd_out /= (ex_dest_regadd_out'range => '0')) then
 			if (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out) then
-				enable_stall <= '1';
+				fwd_from_ex_enable <= '1';
+				ex_ALUData1_selector0_in_buffer <= '0';
+				ex_ALUData1_selector1_in_buffer <= '1';
+				ex_ALUData2_selector0_in_buffer <= '0';
+				ex_ALUData2_selector1_in_buffer <= '1';
 			else
-				enable_stall <= '0';
+				fwd_from_ex_enable <= '0';
+				ex_ALUData1_selector0_in_buffer <= '0';
+				ex_ALUData1_selector1_in_buffer <= '0';
+				ex_ALUData2_selector0_in_buffer <= '0';
+				ex_ALUData2_selector1_in_buffer <= '0';
 			end if;
-		else
-			enable_stall <= '0';
+		else 
+			fwd_from_ex_enable <= '0';
+			ex_ALUData1_selector0_in_buffer <= '0';
+			ex_ALUData1_selector1_in_buffer <= '0';
+			ex_ALUData2_selector0_in_buffer <= '0';
+			ex_ALUData2_selector1_in_buffer <= '0';
+		end if;
+
+		--2 cycles: mem_dest address = id reg address
+		if (mem_WB_address_out /= (mem_WB_address_out'range => '0')) then
+			if (id_reg1_addr_out = mem_WB_address_out OR id_reg2_addr_out = mem_WB_address_out) then
+				fwd_from_mem_enable <= '1';
+				ex_ALUData1_selector0_in_buffer <= '1';
+				ex_ALUData1_selector1_in_buffer <= '1';
+				ex_ALUData2_selector0_in_buffer <= '1';
+				ex_ALUData2_selector1_in_buffer <= '1';
+			else
+				fwd_from_mem_enable <= '0';
+				ex_ALUData1_selector0_in_buffer <= '0';
+				ex_ALUData1_selector1_in_buffer <= '0';
+				ex_ALUData2_selector0_in_buffer <= '0';
+				ex_ALUData2_selector1_in_buffer <= '0';
+			end if;
+		else	
+			fwd_from_mem_enable <= '0';
+			ex_ALUData1_selector0_in_buffer <= '0';
+			ex_ALUData1_selector1_in_buffer <= '0';
+			ex_ALUData2_selector0_in_buffer <= '0';
+			ex_ALUData2_selector1_in_buffer <= '0';
+		end if;
+
+		-- load hazard
+		if (ex_loaden_out = '1') then
+			if (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out) then
+				stall_enable <= '1';
+				if_pc_enable_in_buffer <= '1';
+			else
+				stall_enable <= '0';
+				if_pc_enable_in_buffer <='0';
+			end if;
+		else 
+			stall_enable <='0';
+			if_pc_enable_in_buffer <= '0';
 		end if;
 
 end if;
