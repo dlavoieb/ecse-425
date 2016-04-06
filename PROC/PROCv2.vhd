@@ -226,7 +226,7 @@ if_pc_sel_in_buffer<=id_branch_out;
 id_wenable_in_buffer<=wb_WB_enable_in_buffer;
 id_reg_add_in_buffer<=wb_WB_address_in_buffer;
 id_reg_data_in_buffer<=wb_WB_data_in_buffer;
-
+if_pc_enable_in_buffer<= not enable_stall;
 --unclocked forwarding signals
 --mem_forward_data<=wb_WB_data_in_buffer;
 --WB_forward_data<=wb_WB_data_in_buffer;
@@ -256,7 +256,7 @@ if falling_edge(clock) then
 		ex_imm_in_buffer <=id_imm_out;
 		ex_dest_regadd_in_buffer <= id_dest_regadd_out;
 		ex_alu_op_in_buffer <=id_alu_op_out;
-		
+
 		ex_loaden_in_buffer <=id_loaden_out;
 		ex_storeen_in_buffer <=id_storeen_out;
 
@@ -266,7 +266,7 @@ if falling_edge(clock) then
 		ex_byte_in_buffer<=id_byte_out;
 		ex_WB_enable_in_buffer<=id_WB_enable_out;
 		ex_use_IMM_in<=id_useimm_out;
-	
+
 
 		--EX/MEM Buffer Latching
 		mem_address_in_buffer<=ex_ALU_result_out;
