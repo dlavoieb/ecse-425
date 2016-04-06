@@ -12,9 +12,9 @@ entity PC is
 end entity ; -- PC
 
 architecture arch of PC is
+signal temp : std_logic_vector(31 downto 0);
 begin
 
-signal temp : std_logic_vector(31 downto 0);
 program_counter : process( clock )
 begin
 
