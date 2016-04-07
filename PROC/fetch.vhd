@@ -30,6 +30,8 @@ architecture arch of fetch is
     SIGNAL selected_address : std_logic_vector(31 downto 0) := (others => '0') ;
     SIGNAL pc_out_internal : std_logic_vector(31 downto 0) := (others => '0') ;
 
+    signal predictor_target : std_logic_vector(31 downto 0) ;   
+    signal predictor_taken : std_logic;
 begin
     instruction_memory : ENTITY work.Main_Memory
     GENERIC MAP (
@@ -58,6 +60,17 @@ begin
         pc_in   => selected_address,
         pc_out  => pc_out_internal,
         enable  => pc_enable
+    );
+
+    predictor_1 : ENTITY work.predictor_1bit
+    PORT MAP (
+        pc_in => pc_out_internal,
+        branch_target => pc_in,
+        branch_taken => pc_sel,
+        branch_ctl => branch_ctl,
+        pc_target => predictor_target,
+        prediction  => predictor_taken,
+        clk => clk
     );
 
     with pc_sel select selected_address <= 

@@ -14,6 +14,19 @@ add wave -group "IF in buffers" -radix unsigned sim:/PROCv2/if_pc_in_buffer\
 add wave -group "IF out signals" -radix unsigned sim:/PROCv2/if_pc_out\
 -radix binary sim:/PROCv2/if_inst_out
 
+add wave -group "Predictor" -radix unsigned sim:/PROCv2/IFstage/predictor_1/pc_in\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/pc_target\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/prediction\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_target\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/branch_taken\
+   -radix br_ctl sim:/PROCv2/IFstage/predictor_1/branch_ctl\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/taken\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_target_pc\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_instruction_pc
+
+
+
+
 add wave -group "ID in buffers" -radix binary sim:/PROCv2/id_inst_in_buffer\
 sim:/PROCv2/id_wenable_in_buffer\
 -radix unsigned sim:/PROCv2/id_reg_add_in_buffer\
@@ -151,6 +164,7 @@ vcom memory_constants.vhd
 vcom Data_Mem.vhd
 vcom PC.vhd
 vcom MEM.vhd
+vcom predictor_1bit.vhd
 vcom fetch.vhd
 vcom shifter.vhd
 vcom comparator.vhd
