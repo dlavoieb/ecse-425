@@ -30,7 +30,8 @@ entity decode is
         branch_taken : out std_logic; -- selector for IF stage pc source mux
         byte : out std_logic;
         write_back_enable : out std_logic; -- write-back stage is expected to write to regs
-        n_reset : in std_logic
+        n_reset : in std_logic;
+        branch_ctl_out : out std_logic_vector(1 downto 0)
     ) ;
 end entity ; -- decode
 
@@ -312,6 +313,7 @@ begin
         end if ;
     end process ; -- decode_stage
 
+    branch_ctl_out <= branch_ctl;
     immediate_out <= immediate_out_internal;
     reg1_out <= reg1_out_internal;
     reg2_out <= reg2_out_internal;

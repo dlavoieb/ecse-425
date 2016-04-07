@@ -30,6 +30,7 @@ add wave -group "ID out signals" -radix unsigned sim:/PROCv2/id_pc_out\
 sim:/PROCv2/id_storeen_out\
 sim:/PROCv2/id_useimm_out\
 sim:/PROCv2/id_branch_out\
+sim:/PROCv2/id_branch_ctl_out\
 sim:/PROCv2/id_byte_out\
 sim:/PROCv2/id_WB_enable_out
 

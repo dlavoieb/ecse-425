@@ -17,9 +17,9 @@ end entity ; -- predictor_1bit
 
 architecture arch of predictor_1bit is
 
-signal branch_instruction_pc : std_logic_vector(31 downto 0) ;
-signal branch_target_pc : std_logic_vector(31 downto 0) ;
-signal taken : std_logic ;
+signal branch_instruction_pc : std_logic_vector(31 downto 0) := (others => '0');
+signal branch_target_pc : std_logic_vector(31 downto 0) := (others => '0') ;
+signal taken : std_logic  := '0';
 
 begin
 
@@ -35,7 +35,7 @@ begin
 	end if ;
 end process ; -- prediction
 
-learn : process( clk )
+learn_new : process( clk )
 begin
 	if rising_edge(clk) then
 		if (branch_ctl = "10") or (branch_ctl = "01") then
@@ -44,6 +44,6 @@ begin
 			branch_target_pc <= branch_target;
 		end if ;
 	end if ;
-end process ; -- learn
+end process ; -- learn_new
 
 end architecture ; -- arch

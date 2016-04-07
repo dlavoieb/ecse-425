@@ -12,7 +12,8 @@ entity fetch is
     pc_sel : in std_logic;
     pc_enable : in std_logic;
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
-    n_reset : in std_logic
+    n_reset : in std_logic;
+    branch_ctl : in std_logic_vector(1 downto 0)
   ) ;
 end entity ; -- fetch
 
