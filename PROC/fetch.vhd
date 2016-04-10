@@ -29,9 +29,13 @@ architecture arch of fetch is
 
     SIGNAL selected_address : std_logic_vector(31 downto 0) := (others => '0') ;
     SIGNAL pc_out_internal : std_logic_vector(31 downto 0) := (others => '0') ;
+    SIGNAL pc_out_internal_selected : std_logic_vector(31 downto 0) := (others => '0') ;
 
     signal predictor_target : std_logic_vector(31 downto 0) ;   
     signal predictor_taken : std_logic;
+    signal last_cycle_prediction : std_logic;
+    signal pc_sel_concat : std_logic_vector(1 downto 0);
+
 begin
     instruction_memory : ENTITY work.Main_Memory
     GENERIC MAP (
@@ -72,13 +76,25 @@ begin
         prediction  => predictor_taken,
         clk => clk
     );
+    register_predictor : process( clk )
+    begin
+        if falling_edge(clk) then
+            last_cycle_prediction <= predictor_taken;
+        end if ;
+    end process ; -- register_predictor
 
-    with pc_sel select selected_address <= 
-        pc_in when '1',
-        std_logic_vector(unsigned(pc_out_internal) + 4) when others;
+    pc_sel_concat <= pc_sel & last_cycle_prediction;
 
-    pc_out <= pc_out_internal;
-    im_address <= to_integer(unsigned(pc_out_internal));
+    with pc_sel_concat select selected_address <= 
+        pc_in when "10",
+        std_logic_vector(unsigned(pc_out_internal_selected) + 4) when others;
+
+    with predictor_taken select pc_out_internal_selected <=
+        predictor_target when '1',
+        pc_out_internal when others;
+
+    pc_out <= pc_out_internal_selected;
+    im_address <= to_integer(unsigned(pc_out_internal_selected));
     im_we <= '0';
     im_wr_done <= 'Z';
     instruction_out <= im_data;
