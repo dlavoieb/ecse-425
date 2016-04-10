@@ -203,8 +203,15 @@ signal mem_forward_data: std_logic_vector (31 downto 0);
 signal WB_forward_data: std_logic_vector (31 downto 0);
 
 --Hazard Detection
+signal fwd_from_ex_enable: std_logic;
+signal fwd_from_mem_enable: std_logic;
 signal enable_stall: std_logic;
-
+signal ex_enable_stall: std_logic;
+signal if_pc_enable_in_buffer_temp: std_logic;
+signal enable_stall_temp: std_logic;
+signal enable_stall_temp1: std_logic;
+signal enable_stall_temp2: std_logic;
+signal z:std_logic;
 begin
 
 --instantiate stages
@@ -216,7 +223,7 @@ MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,me
 
 clk<=clock;
 id_reset<=reset;
-ex_reset<=reset AND NOT(enable_stall);
+ex_reset<=reset AND NOT(ex_enable_stall);
 if_reset<=reset;
 mem_reset<=reset;
 
@@ -229,26 +236,44 @@ id_wenable_in_buffer<=wb_WB_enable_in_buffer;
 id_reg_add_in_buffer<=wb_WB_address_in_buffer;
 id_reg_data_in_buffer<=wb_WB_data_in_buffer;
 if_pc_enable_in_buffer<= not enable_stall;
---unclocked forwarding signals
---mem_forward_data<=wb_WB_data_in_buffer;
---WB_forward_data<=wb_WB_data_in_buffer;
---ex_alu_result_in<=mem_data_in_buffer;
---mem_forwarded_data_in<=wb_WB_data_in_buffer;
 
+--unclocked forwarding signals
+
+ex_alu_result_in<=mem_address_in_buffer;
+mem_forward_data<=wb_WB_data_in_buffer;
+
+--enable_stall<='0';
+--if_pc_enable_in_buffer <='1';
 
 --Control Unit
-ex_ALUData1_selector0_in_buffer<='0';
-ex_ALUData1_selector1_in_buffer<='0';
-ex_ALUData2_selector0_in_buffer<='0';
-ex_ALUData2_selector1_in_buffer<='0';
-mem_data_in_selected<='0';
+mem_forwarded_data_in <= wb_WB_data_in_buffer;
+ex_ALUData2_selector0_in_buffer <= '0';
+ex_ALUData2_selector1_in_buffer <= '0';				
 
 proc: process (clock)
 begin
 if falling_edge(clock) then
+		ex_enable_stall<=enable_stall;
+
+--		if (id_loaden_out ='1') then
+
+--			if ( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) ) then
+--				enable_stall <= '1';
+--				if_pc_enable_in_buffer_temp  <= '0';
+--				else
+--				enable_stall <='0';
+--				if_pc_enable_in_buffer_temp <= '1';
+--			end if;
+--else 
+--enable_stall  <='0';
+--if_pc_enable_in_buffer_temp <= '1';
+
+--end if;
 
 		--IF/ID Buffer Latching
+		if (if_inst_out /= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ") then
 		id_inst_in_buffer <=if_inst_out;
+		end if;
 		id_pc_in_buffer<=if_pc_out;
 
 
@@ -284,18 +309,47 @@ if falling_edge(clock) then
 		wb_WB_enable_in_buffer<=mem_WB_enable_out;
 		wb_WB_address_in_buffer<=mem_WB_address_out;
 
-		--Hazard Detection
-		if (ex_dest_regadd_out /= (ex_dest_regadd_out'range => '0')) then
-			if (id_reg1_addr_out = ex_dest_regadd_out OR id_reg2_addr_out = ex_dest_regadd_out) then
-				enable_stall <= '1';
-			else
-				enable_stall <= '0';
-			end if;
-		else
-			enable_stall <= '0';
+		--ALU Operand 1 Forwarding
+		 if ((id_reg1_addr_out /= "00000") and (id_reg1_addr_out = ex_dest_regadd_out) and ex_WB_enable_out='1') then
+		 ex_ALUData1_selector0_in_buffer <= '1';
+		 ex_ALUData1_selector1_in_buffer <= '0';
+		elsif ((id_reg1_addr_out /= "00000") and (id_reg1_addr_out = mem_WB_address_out) and mem_WB_enable_out='1') then
+		 ex_ALUData1_selector0_in_buffer <= '0';
+		 ex_ALUData1_selector1_in_buffer <= '1';
+		else 
+		ex_ALUData1_selector0_in_buffer <= '0';
+		ex_ALUData1_selector1_in_buffer <= '0';
+		end if;
+
+		--ALU Operand 2 Forwarding
+		if ((id_reg2_addr_out /= "00000") and (id_reg2_addr_out = ex_dest_regadd_out) and ex_WB_enable_out='1') then
+		 ex_ALUData2_selector0_in_buffer <= '1';
+		 ex_ALUData2_selector1_in_buffer <= '0';
+		elsif ((id_reg2_addr_out /= "00000") and (id_reg2_addr_out = mem_WB_address_out) and mem_WB_enable_out='1') then
+		 ex_ALUData2_selector0_in_buffer <= '0';
+		 ex_ALUData2_selector1_in_buffer <= '1';
+		else 
+		ex_ALUData2_selector0_in_buffer <= '0';
+		ex_ALUData2_selector1_in_buffer <= '0';
+		end if;
+
+		--MEM Forwarding (sw after lw)
+		mem_data_in_selected <='0';
+		if ((ex_dest_regadd_out /="00000") and (ex_dest_regadd_out=mem_WB_address_out) and (ex_storeen_out='1')) then
+		mem_data_in_selected <='1';
 		end if;
 
 end if;
 end process;
+
+--Stalling 
+enable_stall<= enable_stall_temp and not id_storeen_out;
+if_pc_enable_in_buffer <= not enable_stall;
+
+enable_stall_temp <= '1' when (( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) ) and ex_loaden_out ='1') else 
+'0';
+
+
+
 
 end foo;
