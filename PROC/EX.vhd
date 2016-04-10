@@ -111,11 +111,12 @@ ALU1: ALU port map(sclock, sRS, sRT, sFC, sRES, sZERO);
 mux1: mux41 port map(SEL10,SEL11,A1,B1,C1,D1,X1);
 mux2: mux41 port map(SEL20, SEL21, A2, B2, C2, D2, X2);
 
-main: process (clock, n_reset, ex_stall)
+main: process (clock)
 begin
 
-if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
 
+if rising_edge(clock) then
+if (falling_edge(n_reset) or n_reset = '0' or ex_stall = '1') then
 sFC<=(others => '0');
 RDAO<=(others => '0');
 MARO<='0';
@@ -123,9 +124,7 @@ MAWO<='0';
 mem_data_out<=(others => '0');
 byte_out<='0';
 WB_enable_out<='0';
-
-
-elsif rising_edge(clock) then
+else
 
 		RDAO<=(others => '0');
 		mem_data_out<=(others => '0');
@@ -152,6 +151,7 @@ elsif rising_edge(clock) then
 		byte_out<=byte_in;
 		
 
+end if;
 end if;
 end process;
 

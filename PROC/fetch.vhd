@@ -43,7 +43,7 @@ begin
         Word_Byte   => '1',
         we          => im_we,
         wr_done     => im_wr_done,
-        re          => im_re,
+        re          => pc_enable,
         rd_ready    => im_rd_ready,
         data        => im_data,
         initialize  => im_initialize,
