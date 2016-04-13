@@ -1,0 +1,55 @@
+\documentclass[12pt]{IEEEtran} % 2014 rules say 12pt font
+\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}  
+
+\usepackage[bookmarks, colorlinks, breaklinks, 
+    pdftitle={Group 10 Report},
+    pdfauthor={David Lavoie-Boutin},
+    pdfsubject={VHDL implementation of MIPS processor},
+    pdfcreator={Sublime Text with LaTeXtools},
+    pdfdisplaydoctitle={true}]
+    {hyperref}
+\usepackage{pdflscape} %landscape
+\usepackage{epstopdf} % for including .eps graphics
+\usepackage{listings} % insert code
+\usepackage{pdfpages} % include other pdf
+\usepackage{graphicx} % include images
+
+\usepackage[section]{placeins}
+
+\title{VHDL implementation of a 5-stage pipelined MIPS processor}
+
+\date{\today}
+\author{Wei-Di Chang, David Lavoie-Boutin, Muhammad Ali Lashari, Sitara Sheriff}
+
+\begin{document}
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\end{@twocolumnfalse}
+\begin{abstract}
+    The MIPS processor is the most widely used processor example in academia for it is simple enough to understand and teach with its classic RISC architecture yet can implement new architectural design with little changes to the core architecture. In this article, we will present our attempt at implementing a MIPS processor in VHDL along with some optimization we tried. The different optimization are also compared to find an optimal design amongst those tried.
+\end{abstract}
+\bigskip]
+
+\section{Introduction} % (fold)
+\label{sec:introduction}
+% section introduction (end)
+
+\section{Optimization} % (fold)
+\label{sec:optimisation}
+To optimize the performance of our pipelined processor, we decided to implement prediction hardware to reduce the number of invalid instruction fetch after a branch instruction. First we implemented a one bit predictor as a proof of concept and then implemented the two bit predictor. We compared the performance of both based on $<$FIND PERFORMANCE CRITERIA$>$.
+
+\subsection{One Bit Predictor} % (fold)
+\label{sec:1_bit_predictor}
+The first optimization we implemented was adding a 1 bit predictor to the fetch stage. The predictor monitors the output of the branch resolution hardware in the decode stage and records the result of the latest branching instruction. It also records the program counter associated with that instruction. The predictor then compares the program counter to the recorded counter for the prediction. Upon match, it will set the next program counter address to the address it recorded when updating the prediction from the decode stage. Finally, if the prediction was wrong, the predictor will stall the wrong instruction and update the records for the next iteration.  
+% section 1_bit_predictor (end)
+
+\subsection{Two Bit Predictor} % (fold)
+\label{sub:2_bit_predictor}
+The next iteration of the predictor was building a two bit predictor. It's interface to the rest of the fetch and decode stage is the same, except that the internal structure uses a state machine instead of a blind comparator to drive the prediction output. The state machine was implemented according to the behavior specified in the lecture slides, lecture 13, page 17. The two bit predictor implements the same wrong prediction detection and correction strategy as the one bit predictor.
+% subsection 2_bit_predictor (end)
+
+% section optimisation (end)
+
+
+\end{document}
