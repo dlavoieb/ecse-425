@@ -13,7 +13,8 @@ entity fetch is
     pc_enable : in std_logic;
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
     n_reset : in std_logic;
-    branch_ctl : in std_logic_vector(1 downto 0)
+    branch_ctl : in std_logic_vector(1 downto 0);
+    bad_prediction : out std_logic
   ) ;
 end entity ; -- fetch
 
@@ -70,6 +71,7 @@ begin
         branch_ctl => branch_ctl,
         pc_target => predictor_target,
         prediction  => predictor_taken,
+        bad_prediction => bad_prediction,
         clk => clk
     );
 
