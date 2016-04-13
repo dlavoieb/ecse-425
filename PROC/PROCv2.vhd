@@ -245,8 +245,6 @@ mem_forward_data<=wb_WB_data_in_buffer;
 
 --Control Unit
 mem_forwarded_data_in <= wb_WB_data_in_buffer;
-ex_ALUData2_selector0_in_buffer <= '0';
-ex_ALUData2_selector1_in_buffer <= '0';				
 
 proc: process (clock)
 begin
@@ -329,8 +327,7 @@ end process;
 
 --Stalling 
 if_pc_enable_in_buffer <= not enable_stall;
-
-enable_stall<= '1' when ((((( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000") ) ) and ex_loaden_out ='1') and id_storeen_out='0') OR  (id_storeen_out ='1' and ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) and ex_reset='1') ) and ex_dest_regadd_in_buffer /="00000")  else 
+enable_stall<= '1' when ((((( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000") ) ) and ex_loaden_out ='1') and id_storeen_out='0') OR  (id_storeen_out ='1' and ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) and ex_reset='1') ) and ex_dest_regadd_in_buffer /="00000" and ex_loaden_out ='1')  else 
 '0';
 
 --and not id_storeen_out) OR  id_storeen_out and ()
