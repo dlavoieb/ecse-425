@@ -1,5 +1,5 @@
 \documentclass[12pt]{IEEEtran} % 2014 rules say 12pt font
-\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}  
+\usepackage[top=0.7in, bottom=0.7in, left=0.7in, right=0.7in]{geometry}  
 
 \usepackage[bookmarks, colorlinks, breaklinks, 
     pdftitle={Group 10 Report},
@@ -16,10 +16,16 @@
 
 \usepackage[section]{placeins}
 
-\title{VHDL implementation of a 5-stage pipelined MIPS processor}
+\lstset{
+  language=[x86masm]Assembler,
+  basicstyle=\small,
+  breaklines=true
+  }
+
+\title{VHDL implementation of a pipelined MIPS processor}
 
 \date{\today}
-\author{Wei-Di Chang, David Lavoie-Boutin, Muhammad Ali Lashari, Sitara Sheriff}
+\author{Wei-Di Chang, David Lavoie-Boutin, Muhammad Ali Lashari}
 
 \begin{document}
 \twocolumn[
@@ -38,6 +44,21 @@
 \section{Design} % (fold)
 \label{sec:design}
 
+\subsection{Fetch Stage} % (fold)
+\label{sub:fetch_stage}
+The fetch stage wraps two main components with some glue logic. The first is the instruction memory, which is taken from the third project deliverable. The testing script loads an assembled binary program in the memory structure. The address fetched in memory is driven be the PC component which is a basic register holding the value of the program counter. This register is controlled with an enable and reset line. The enable line simply ensures the input of PC is passed to the output. In case it is low, the output is taken from the last recorded input.
+
+These two components are connected with some logic to allow program counter jumps in the case of jump or branch instructions. Specifically, a multiplexer allows the selection of either the incremented program counter or the address computed in decode as the source for the next pc value.  
+% subsection fetch_stage (end)
+
+\subsection{Decode Stage} % (fold)
+\label{sub:decode_stage}
+The decode stage is responsible for extracting the information needed to execute the instruction. It parses which instruction type we received, either I-Type, R-Type or Branch-Type. Based on this information, it extracts which register should be used as operands for the execute stage and which is the destination register. Additionally, it generates control signals driving the multiplexers in the execute stage that select between register content and immediate value for the second input to the ALU. 
+
+The decode stage also implements early branch address resolution. This is done by adding dedicated hardware to compute the \verb@base+offset@ at every cycle. Additional logic is added exclusively to analyse if the current is a \verb@BEQ@, \verb@BNE@ or jump instruction. If this is the case, that logic drives the branch selection multiplexer in the fetch to use the output of the address computation hardware as next program address.
+
+% subsection decode_stage (end)
+
 \subsection{Execute Stage} % (fold)
 \label{sub:execute_stage}
 The execute stage integrates 3 multiplexers and one arithmetic logic unit, ALU for short. One multiplexer selects the source of the second ALU operand based on a control signals from the decode stage. The output of that is fed into one of the inputs of a second multiplexer which selects between this and data forwarded from the memory or write back stages based on forwarding control signals. The third multiplexer similarly selects between the register data passed from the decode stage and the forwarded data from later stages for the first operand of the ALU. The use of this structure allows us to combine many operations, specifically, the ALU does not need to differentiate between R-type and I-type instructions. This way, the ALU operates based on a 4 bits op-code, which can differentiate up to 16 functions. 
@@ -45,7 +66,13 @@ The execute stage integrates 3 multiplexers and one arithmetic logic unit, ALU f
 
 \subsection{Memory and Write Back} % (fold)
 \label{sub:memory_and_write_back}
-The write back stage is essentially just a group of data lines buffered back into the decode stage. The write back stage contains no functional components. 
+The memory stage has been implemented using a data memory block and 3 multiplexers.
+
+The first multiplexer is used to select between data pass-through to the Write Back stage or data write to the data memory. The second multiplexer is used to select the input to the data memory, selecting as input either normal data lines or forwarded data lines. Finally, the last multiplexer is used to make sure that the address that gets transferred to the data memory block is meant to used by it (load or store).
+
+The data memory is separate from instruction memory and has a depth d = 65536*4, indexed by bytes, resulting in a capacity of 262143 bytes, or 2097144 bits. It always has data available on its output line, enabling zero delay consecutive read, and a one cycle write delay.
+
+The write back stage is simply a group of data lines buffered back into the decode stage, hence the write back stage contains no functional components. 
 
 % subsection memory_and_write_back (end)
 
@@ -54,13 +81,57 @@ The write back stage is essentially just a group of data lines buffered back int
 Stages are connected through falling-edge triggered buffers. The inputs of each stage are latched to the outputs of the previous stage every falling edge. However, the stall triggering signal from decode on branches and jumps are fed into the EX stage via two sequentially buffers. This is because the stall command must affect the instruction after the branch/jump instruction since it has been incorrectly fetched. These incorrectly fetched instructions are decoded properly but then nullified in the EX stage.
 % subsection stage_interconnection (end)
 
+\subsection{Hazard Detection} % (fold)
+\label{sub:hazard_detection}
+The hazard detection logic serves to stall the pipeline if a read after write hazard is detected. For standard operations, data can be forwarded back from later stages. However a load instruction require extra logic for stall incurs.\\
+\\
+\begin{tabular}{l l}
+    Given Instruction & Executed Instructions\\
+    \hline 
+    \begin{lstlisting}
+Lw $3, 0($5)
+Addi $3, $0, 1
+    \end{lstlisting} & 
+    \begin{lstlisting}
+Lw $3, 0($5)
+-- stall
+Addi $3, $0, 1
+    \end{lstlisting} \\
+    \hline
+    \begin{lstlisting}
+Lw $3, 0($5)
+Sw $3, 0($6)
+    \end{lstlisting} &
+    \begin{lstlisting}
+Lw $3, 0($5)
+Sw $3, 0($6)
+    \end{lstlisting}\\
+    \hline 
+    \begin{lstlisting}
+Lw $3, 0($5)
+Sw $4, 0($3)
+    \end{lstlisting} &
+    \begin{lstlisting}
+Lw $3, 0($5)
+-- stall
+Sw $4, 0($3)
+    \end{lstlisting} \\
+\end{tabular}
 
+A stall is only triggered if the preceding instruction is a load that writes to the same register as one or two of the EX stage operand registers of the current instruction. In the case when a store is preceded by load writing to a register that is used for data written to memory in the store, no stalling is necessary since forwarding will be used to handle that. A stall allows the processor time to retrieve data from memory stage so that it may be used in the immediately following EX executions.
+% subsection hazard_detection (end)
+
+\subsection{Forwarding} % (fold)
+\label{sub:forwarding}
+Forwarding works by checking current the instruction’s register operands with destination register addresses in the preceding instructions. If a match is found, the forwarding unit manipulates the execute stage multiplexers to select the proper data to be used instead of the data provided by the decode stage. Additionally for stores preceded by loads, data can be forwarded from the write back stage back into memory if the register addresses are the same. Currently the processor is able to forward memory and write back data back into the execute stage, and write back data back into memory.
+
+% subsection forwarding (end)
 
 % section design (end)
 
 \section{Optimization} % (fold)
 \label{sec:optimisation}
-To optimize the performance of our pipelined processor, we decided to implement prediction hardware to reduce the number of invalid instruction fetch after a branch instruction. First we implemented a one bit predictor as a proof of concept and then implemented the two bit predictor. We compared the performance of both based on $<$FIND PERFORMANCE CRITERIA$>$.
+To optimize the performance of our pipelined processor, we decided to implement branch prediction hardware to reduce the number of invalid instruction fetch after the branch instructions. First we implemented a one bit predictor as a proof of concept and then implemented the two bit predictor. We compared the performance of each implementation to the non-optimized processor based on the ratio of the number of stalls and the number of branch instructions.
 
 \subsection{One Bit Predictor} % (fold)
 \label{sec:1_bit_predictor}
@@ -69,10 +140,58 @@ The first optimization we implemented was adding a 1 bit predictor to the fetch 
 
 \subsection{Two Bit Predictor} % (fold)
 \label{sub:2_bit_predictor}
-The next iteration of the predictor was building a two bit predictor. It's interface to the rest of the fetch and decode stage is the same, except that the internal structure uses a state machine instead of a blind comparator to drive the prediction output. The state machine was implemented according to the behavior specified in the lecture slides, lecture 13, page 17. The two bit predictor implements the same wrong prediction detection and correction strategy as the one bit predictor.
+The next iteration of the predictor was building a two bit predictor. It's interface to the rest of the fetch and decode stage is the same, except that the internal structure uses a state machine instead of a blind comparator to drive the prediction output. The state machine was implemented according to the behavior specified in the lecture slides, lecture 13, page 17. The two bit predictor implements the same wrong prediction detection and correction strategy as the one bit predictor. 
 % subsection 2_bit_predictor (end)
 
+\subsection{Comparison} % (fold)
+\label{sub:comparison}
+With the three implementations completed, we created a small program implementing an infinite loop and ran it using the three implementations. First, we ran five iteration and counted the number of stalls incurred by the base implementations. Obviously, all iterations resulted in a misprediction. We did the same with the one bit predictor and the two bit predictors. In the case of the one bit, only the first iteration stalled and for the two bits, the first two iterations stalled.
+
+Next we implemented a loop with an exit condition. In this case, the results were more interesting. For 10 loop iterations, the results were as follow.\\
+\\
+\begin{tabular}{c c c c}
+& No predictor & One bit & Two Bit \\
+\hline
+No. of stalls & 9 & 2 & 3 \\
+\hline
+\\
+\end{tabular}
+
+In this case, the results are very much what we would expect. The standard processor is wrong for all except the last iteration. The one bit predictor is wrong once at the beginning of the loop, and once at the end. For the two bit predictor, it takes two iteration to get an accurate prediction and again one misprediction at the end. The two bit predictor becomes interesting if we jump back to that loop again in the future. In that case, the first prediction of the second loop entry would be accurate and we would see the advantage of using the two bit predictor over the one bit predictor. 
+
+Generally, for a single loop, the ratio of stalls over branch instructions will be as follow:
+$$\eta_n = 1, \eta_1 = \frac{2}{i}, \eta_2 = \frac{3}{i}$$\\
+where $\eta_n$, $\eta_1$, $\eta_2$, are the ratios applied to the basic processor, one bit predictor and two bit predictor respectively, and $i$ is the number of loop iterations.
+
+From these equation, we can clearly see a remarkable advantage to using predictors, especially if the loops are long. However, this advantage is not as obvious with the one bit and two bit predictor. In fact, in the tests we made, the two bit design was dominated by the one bit design. That is not to say though that it is always the case. As stated earlier, if we re-enter the same loop, then the ratio for the two bit predictor becomes $\eta_2 = \frac{1}{i}$.
+% subsection comparison (end)
+
 % section optimisation (end)
+
+\section{Conclusion \& Discussion}
+In conclusion, in this project, we implemented a basic MIPS processor featuring early branch resolution, forwarding and hazard detection. We then attempted to optimize that design by adding a branch prediction unit and compared the performance of different implementation for that unit. 
+It is important to mention that the comparison results presented in this report only reflect changes in pc address as we were unsuccessful at integrating the prediction logic passed the decode stage. An example is shown in Figure~\ref{fig:pred}.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.48\textwidth]{1bit-pred.png}
+    \caption{Example waveform showing the effect of the predictor on the program counter. Note that the first iteration loads instruction 32 while the others do not.}
+    \label{fig:pred}
+\end{figure}
+
+
+
+\begin{landscape}
+\begin{@twocolumnfalse}
+\section*{Figures}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=10in]{processor.png}
+    \caption{5-stage MIPS pipeline implementation with buffers and forwarding lines }
+    \label{fig:figure1}
+\end{figure}
+\end{@twocolumnfalse}
+\end{landscape}
 
 
 \end{document}
