@@ -42,16 +42,17 @@ learn_new : process( clk )
 begin
 	if rising_edge(clk) then
 		bad_prediction <= '0';	
-		if (branch_ctl = "10") or (branch_ctl = "01") then
-			taken <= branch_taken;
-			branch_instruction_pc <= pc_in;
-			branch_target_pc <= branch_target;
 
+		if (branch_ctl = "10") or (branch_ctl = "01") then
 			if branch_instruction_pc = pc_in then
 				if NOT (branch_taken = taken) then
 				-- bad prediction insert stall.
 					bad_prediction <= '1';
 				end if ;
+			else
+				taken <= branch_taken;
+				branch_instruction_pc <= pc_in;
+				branch_target_pc <= branch_target;
 			end if ;
 		end if ;
 	end if ;
