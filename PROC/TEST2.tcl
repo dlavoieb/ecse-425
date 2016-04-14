@@ -33,7 +33,9 @@ sim:/PROCv2/id_storeen_out\
 sim:/PROCv2/id_useimm_out\
 sim:/PROCv2/id_branch_out\
 sim:/PROCv2/id_byte_out\
-sim:/PROCv2/id_WB_enable_out
+sim:/PROCv2/id_WB_enable_out\
+-radix unsigned sim:/PROCv2/id_reg1_addr_out\
+-radix unsigned sim:/PROCv2/id_reg2_addr_out
 
 add wave -group "EX in buffers" -radix decimal sim:/PROCv2/ex_r1_in_buffer\
 -radix decimal sim:/PROCv2/ex_r2_in_buffer\
@@ -49,7 +51,10 @@ sim:/PROCv2/ex_storeen_in_buffer\
 sim:/PROCv2/ex_stall_in_buffer\
 sim:/PROCv2/ex_stall_in_buffer0\
 sim:/PROCv2/ex_byte_in_buffer\
-sim:/PROCv2/ex_WB_enable_in_buffer
+sim:/PROCv2/ex_WB_enable_in_buffer\
+-radix decimal sim:/PROCv2/ex_alu_result_in\
+-radix decimal sim:/PROCv2/EXstage/X1\
+-radix decimal sim:/PROCv2/EXstage/X2
 
 add wave -group "EX out signals" -radix decimal sim:/PROCv2/ex_ALU_result_out\
 -radix unsigned sim:/PROCv2/ex_dest_regadd_out\
@@ -64,7 +69,9 @@ add wave -group "MEM in buffers" -radix decimal sim:/PROCv2/mem_data_in_buffer\
 -radix binary sim:/PROCv2/mem_access_write_in_buffer\
 sim:/PROCv2/mem_byte_in_buffer\
 sim:/PROCv2/mem_WB_enable_in_buffer\
--radix unsigned sim:/PROCv2/mem_WB_address_in_buffer
+-radix unsigned sim:/PROCv2/mem_WB_address_in_buffer\
+-radix decimal sim:/PROCv2/MEMstage/data_selected\
+-radix unsigned sim://PROCv2/MEMstage/data_memory/port_adr
 
 
 add wave -group "MEM out signals" -radix binary sim:/PROCv2/mem_WB_enable_out\
@@ -99,7 +106,7 @@ proc runsim {} {
   force -deposit /PROCv2/if_pc_in_buffer "00000000000000000000000000110000" 0
   force -deposit /PROCv2/if_pc_enable_in_buffer 1 0 ns
   force -deposit /PROCv2/reset 1 1
-    run 10 ns
+    run 18 ns
 
 }
 

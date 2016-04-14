@@ -46,6 +46,7 @@ architecture behavior of MEM is
 
 signal data : std_logic_vector(31 downto 0);
 signal data_selected: std_logic_vector(31 downto 0);
+signal address_in_temp: std_logic_vector(31 downto 0);
 begin
   data_memory : ENTITY work.Data_Memory
   PORT MAP (
@@ -53,8 +54,8 @@ begin
       n_rst => n_reset, -- Active low reset signal
       write_enable => mem_access_write,  -- Write control signal
       write_in  => data_selected, -- Input data port
-      write_adr => address_in(31 downto 0),-- address write
-      port_adr  => address_in(31 downto 0), -- Port read address :=(others =>'Z')
+      write_adr => address_in_temp(31 downto 0),-- address write
+      port_adr  => address_in_temp(31 downto 0), -- Port read address :=(others =>'Z')
       byte => byte,
       port_out  => data -- Read port 1
   );
@@ -75,5 +76,9 @@ begin
 with data_in_selected select data_selected <=
 forwarded_data_in when '1',
 data_in when others;
+
+address_in_temp <=  address_in when (mem_access_load = '1') 
+else (OTHERS => '0');
+
 
   end behavior;

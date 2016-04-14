@@ -247,28 +247,13 @@ mem_forward_data<=wb_WB_data_in_buffer;
 
 --Control Unit
 mem_forwarded_data_in <= wb_WB_data_in_buffer;
-ex_ALUData2_selector0_in_buffer <= '0';
-ex_ALUData2_selector1_in_buffer <= '0';				
 
 proc: process (clock)
 begin
 if falling_edge(clock) then
 		ex_enable_stall<=enable_stall;
 
---		if (id_loaden_out ='1') then
 
---			if ( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) ) then
---				enable_stall <= '1';
---				if_pc_enable_in_buffer_temp  <= '0';
---				else
---				enable_stall <='0';
---				if_pc_enable_in_buffer_temp <= '1';
---			end if;
---else 
---enable_stall  <='0';
---if_pc_enable_in_buffer_temp <= '1';
-
---end if;
 
 		--IF/ID Buffer Latching
 		if (if_inst_out /= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ") then
@@ -343,13 +328,11 @@ end if;
 end process;
 
 --Stalling 
-enable_stall<= enable_stall_temp and not id_storeen_out;
 if_pc_enable_in_buffer <= not enable_stall;
-
-enable_stall_temp <= '1' when (( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) ) and ex_loaden_out ='1') else 
+enable_stall<= '1' when ((((( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000") ) ) and ex_loaden_out ='1') and id_storeen_out='0') OR  (id_storeen_out ='1' and ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) and ex_reset='1') ) and ex_dest_regadd_in_buffer /="00000" and ex_loaden_out ='1')  else 
 '0';
 
-
+--and not id_storeen_out) OR  id_storeen_out and ()
 
 
 end foo;
