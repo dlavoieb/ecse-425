@@ -11,7 +11,6 @@ entity predictor_1bit is
 
 	pc_target : out std_logic_vector(31 downto 0);
 	prediction : out std_logic;
-	bad_prediction : out std_logic;
 	clk : in std_logic
   ) ;
 end entity ; -- predictor_1bit
@@ -41,15 +40,8 @@ end process ; -- prediction
 learn_new : process( clk )
 begin
 	if rising_edge(clk) then
-		bad_prediction <= '0';	
-
 		if (branch_ctl = "10") or (branch_ctl = "01") then
-			if branch_instruction_pc = pc_in then
-				if NOT (branch_taken = taken) then
-				-- bad prediction insert stall.
-					bad_prediction <= '1';
-				end if ;
-			else
+			if branch_instruction_pc /= pc_in then
 				taken <= branch_taken;
 				branch_instruction_pc <= pc_in;
 				branch_target_pc <= branch_target;

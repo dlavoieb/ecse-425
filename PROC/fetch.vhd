@@ -14,8 +14,7 @@ entity fetch is
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
     n_reset : in std_logic;
     branch_ctl : in std_logic_vector(1 downto 0);
-    predictor_taken_out : out std_logic;
-    bad_prediction : out std_logic
+    predictor_taken_out : out std_logic
   ) ;
 end entity ; -- fetch
 
@@ -76,7 +75,6 @@ begin
         branch_ctl => branch_ctl,
         pc_target => predictor_target,
         prediction  => predictor_taken,
-        bad_prediction => bad_prediction,
         clk => clk
     );
     register_predictor : process( clk )
@@ -91,6 +89,7 @@ begin
 
     with pc_sel_concat select selected_address <= 
         pc_in when "10",
+        pc_in when "01",
         std_logic_vector(unsigned(pc_out_internal_selected) + 4) when others;
 
     with predictor_taken select pc_out_internal_selected <=

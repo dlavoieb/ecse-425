@@ -9,6 +9,16 @@ sim:/PROCv2/mem_reset
 
 add wave -group "Hazard Detection" sim:/PROCv2/enable_stall
 
+add wave -group "Predictor" -radix unsigned sim:/PROCv2/IFstage/predictor_1/pc_in\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/pc_target\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/prediction\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_target\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/branch_taken\
+   -radix br_ctl sim:/PROCv2/IFstage/predictor_1/branch_ctl\
+   -radix binary sim:/PROCv2/IFstage/predictor_1/taken\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_target_pc\
+   -radix unsigned sim:/PROCv2/IFstage/predictor_1/branch_instruction_pc
+
 add wave -group "IF in buffers" -radix unsigned sim:/PROCv2/if_pc_in_buffer\
 -radix binary sim:/PROCv2/if_pc_sel_in_buffer\
 -radix binary sim:/PROCv2/if_pc_enable_in_buffer

@@ -56,7 +56,8 @@ branch_taken : out std_logic; -- selector for IF stage pc source mux
 byte : out std_logic;
 write_back_enable : out std_logic;
 n_reset : in std_logic;
-branch_ctl_out : out std_logic_vector(1 downto 0)
+branch_ctl_out : out std_logic_vector(1 downto 0);
+stall_in: in std_logic
 	);
 end component;
 
@@ -102,7 +103,8 @@ port(
     pc_enable : in std_logic;
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
     n_reset : in std_logic;
-    branch_ctl : in std_logic_vector(1 downto 0)
+    branch_ctl : in std_logic_vector(1 downto 0);
+    predictor_taken_out : out std_logic
 	);
 end component;
 
@@ -119,9 +121,12 @@ signal if_pc_in_buffer: std_logic_vector(31 downto 0);
 signal if_pc_sel_in_buffer: std_logic;
 signal if_pc_enable_in_buffer: std_logic;
 
+
+
 --IF out signals
 signal if_pc_out: std_logic_vector(31 downto 0);
 signal if_inst_out: std_logic_vector(31 downto 0);
+signal if_pred_taken_out: std_logic;
 
 --ID in buffers
 signal id_inst_in_buffer:std_logic_vector (31 downto 0);
@@ -129,6 +134,7 @@ signal id_wenable_in_buffer: std_logic;
 signal id_reg_add_in_buffer: std_logic_vector (reg_adrsize-1 downto 0);
 signal id_reg_data_in_buffer: std_logic_vector(31 downto 0);
 signal id_pc_in_buffer: std_logic_vector(31 downto 0);
+signal id_stall_in_buffer: std_logic;
 
 --ID out signals
 signal id_pc_out: std_logic_vector(31 downto 0);
@@ -211,13 +217,13 @@ signal if_pc_enable_in_buffer_temp: std_logic;
 signal enable_stall_temp: std_logic;
 signal enable_stall_temp1: std_logic;
 signal enable_stall_temp2: std_logic;
-signal z:std_logic;
+signal z: std_logic;
 begin
 
 --instantiate stages
-IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out, id_reg1_addr_out,id_reg2_addr_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset, id_branch_ctl_out);
+IDstage: decode port map(clk, id_pc_in_buffer, id_pc_out,id_inst_in_buffer, id_wenable_in_buffer,id_reg_add_in_buffer,id_reg_data_in_buffer,id_alu_op_out,id_r1_out,id_r2_out, id_reg1_addr_out,id_reg2_addr_out,id_imm_out, id_dest_regadd_out, id_loaden_out,id_storeen_out, id_useimm_out,id_branch_out, id_byte_out,id_WB_enable_out, id_reset, id_branch_ctl_out, id_stall_in_buffer);
 EXstage: EX port map (ex_r1_in_buffer,ex_r2_in_buffer,ex_imm_in_buffer,ex_ALU_result_out,ex_dest_regadd_in_buffer,ex_dest_regadd_out,ex_alu_op_in_buffer,mem_forward_data,WB_forward_data ,clk,ex_reset, ex_use_IMM_in, ex_ALUData1_selector1_in_buffer,ex_ALUData1_selector0_in_buffer, ex_ALUData2_selector0_in_buffer,ex_ALUData2_selector1_in_buffer,ex_storeen_in_buffer,ex_loaden_in_buffer,ex_storeen_out,ex_loaden_out, ex_mem_data_out,ex_stall_in_buffer,ex_byte_in_buffer,ex_WB_enable_in_buffer,ex_byte_out,ex_alu_result_in,ex_WB_enable_out);
-IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset, id_branch_ctl_out);
+IFstage: fetch port map(clk,if_pc_out,if_pc_in_buffer, if_pc_sel_in_buffer,if_pc_enable_in_buffer,if_inst_out,if_reset, id_branch_ctl_out, if_pred_taken_out);
 MEMstage: MEM port map(clk,mem_reset,mem_data_in_buffer,mem_address_in_buffer,mem_access_write_in_buffer ,mem_access_load_in_buffer,mem_byte_in_buffer,mem_WB_enable_in_buffer,mem_WB_address_in_buffer,mem_WB_enable_out,mem_WB_address_out,mem_forwarded_data_in,mem_WB_data_out,mem_data_in_selected);
 
 
@@ -235,7 +241,6 @@ if_pc_sel_in_buffer<=id_branch_out;
 id_wenable_in_buffer<=wb_WB_enable_in_buffer;
 id_reg_add_in_buffer<=wb_WB_address_in_buffer;
 id_reg_data_in_buffer<=wb_WB_data_in_buffer;
-if_pc_enable_in_buffer<= not enable_stall;
 
 --unclocked forwarding signals
 
@@ -328,9 +333,13 @@ end if;
 end process;
 
 --Stalling 
-if_pc_enable_in_buffer <= not enable_stall;
-enable_stall<= '1' when ((((( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000") ) ) and ex_loaden_out ='1') and id_storeen_out='0') OR  (id_storeen_out ='1' and ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) and ex_reset='1') ) and ex_dest_regadd_in_buffer /="00000" and ex_loaden_out ='1')  else 
+if_pc_enable_in_buffer <= not enable_stall_temp;
+enable_stall_temp<= '1' when ((((( ((id_reg2_addr_out = ex_dest_regadd_in_buffer) and (id_reg2_addr_out /= "00000")) or ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000") ) ) and ex_loaden_out ='1') and id_storeen_out='0') OR  (id_storeen_out ='1' and ((id_reg1_addr_out = ex_dest_regadd_in_buffer) and (id_reg1_addr_out /= "00000")) and ex_reset='1') ) and ex_dest_regadd_in_buffer /="00000" and ex_loaden_out ='1')  else 
 '0';
+enable_stall<= '1' when enable_stall_temp ='1' or (if_pred_taken_out = '0' and id_branch_out = '1') or (if_pred_taken_out = '1' and id_branch_out = '0') else 
+'0';
+
+ id_stall_in_buffer<='0';
 
 --and not id_storeen_out) OR  id_storeen_out and ()
 

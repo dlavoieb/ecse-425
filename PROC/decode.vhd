@@ -31,7 +31,8 @@ entity decode is
         byte : out std_logic;
         write_back_enable : out std_logic; -- write-back stage is expected to write to regs
         n_reset : in std_logic;
-        branch_ctl_out : out std_logic_vector(1 downto 0)
+        branch_ctl_out : out std_logic_vector(1 downto 0);
+        stall_in: in std_logic
     ) ;
 end entity ; -- decode
 
@@ -83,15 +84,22 @@ begin
     variable rd : std_logic_vector(reg_adrsize-1 downto 0);
     variable shamt : std_logic_vector(4 downto 0);
     variable funct : std_logic_vector(5 downto 0);
+    variable instruction_in_selected : std_logic_vector ( 31 downto 0);
     begin
         branch_ctl <= "00";
-        immediate_out_internal <= std_logic_vector(resize(signed(instruction_in(15 downto 0)), immediate_out_internal'length));
-        opcode := instruction_in(31 downto 26);
-        rs := instruction_in(25 downto 21);
-        rt := instruction_in(20 downto 16);
-        rd := instruction_in(15 downto 11);
-        shamt := instruction_in(10 downto 6);
-        funct := instruction_in(5 downto 0);
+        if stall_in = '1' then 
+        instruction_in_selected := "00000000000000000000000000000000";
+        else 
+        instruction_in_selected := instruction_in;
+        end if;
+
+        immediate_out_internal <= std_logic_vector(resize(signed(instruction_in_selected(15 downto 0)), immediate_out_internal'length));
+        opcode := instruction_in_selected(31 downto 26);
+        rs := instruction_in_selected(25 downto 21);
+        rt := instruction_in_selected(20 downto 16);
+        rd := instruction_in_selected(15 downto 11);
+        shamt := instruction_in_selected(10 downto 6);
+        funct := instruction_in_selected(5 downto 0);
         offset_select <= '0';
 
         load <= '0';
