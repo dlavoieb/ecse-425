@@ -14,6 +14,7 @@ entity fetch is
     instruction_out : out std_logic_vector (MEM_DATA_WIDTH-1 downto 0);
     n_reset : in std_logic;
     branch_ctl : in std_logic_vector(1 downto 0);
+    predictor_taken_out : out std_logic;
     bad_prediction : out std_logic
   ) ;
 end entity ; -- fetch
@@ -78,7 +79,7 @@ begin
     with pc_sel select selected_address <= 
         pc_in when '1',
         std_logic_vector(unsigned(pc_out_internal) + 4) when others;
-
+    predictor_taken_out <= predictor_taken;
     pc_out <= pc_out_internal;
     im_address <= to_integer(unsigned(pc_out_internal));
     im_we <= '0';
