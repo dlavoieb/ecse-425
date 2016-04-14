@@ -110,6 +110,4 @@ The input and output of each stage are grouped together, with the clock in the c
 
 ## Current Problems
 
-The secondairy branch `hazard_detection` implements the general mechanics for hazard detection, but thoroug testing has proven inconclusive for many tests. This will be corrected in the next release.
-
-The fibonachi program with integrated stalls will work for now as a replacement.
+The main branch fully implements forwarding and hazard detection. For 1-bit and 2-bit prediction implementation, refer to the other branches. The predictions affect the program counter correctly, however, the stalling logic does not respond well to those changes. Therefore, it is not fully merged back with master.
