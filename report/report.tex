@@ -35,6 +35,29 @@
 \label{sec:introduction}
 % section introduction (end)
 
+\section{Design} % (fold)
+\label{sec:design}
+
+\subsection{Execute Stage} % (fold)
+\label{sub:execute_stage}
+The execute stage integrates 3 multiplexers and one arithmetic logic unit, ALU for short. One multiplexer selects the source of the second ALU operand based on a control signals from the decode stage. The output of that is fed into one of the inputs of a second multiplexer which selects between this and data forwarded from the memory or write back stages based on forwarding control signals. The third multiplexer similarly selects between the register data passed from the decode stage and the forwarded data from later stages for the first operand of the ALU. The use of this structure allows us to combine many operations, specifically, the ALU does not need to differentiate between R-type and I-type instructions. This way, the ALU operates based on a 4 bits op-code, which can differentiate up to 16 functions. 
+% subsection execute_stage (end)
+
+\subsection{Memory and Write Back} % (fold)
+\label{sub:memory_and_write_back}
+The write back stage is essentially just a group of data lines buffered back into the decode stage. The write back stage contains no functional components. 
+
+% subsection memory_and_write_back (end)
+
+\subsection{Stage Interconnection} % (fold)
+\label{sub:stage_interconnection}
+Stages are connected through falling-edge triggered buffers. The inputs of each stage are latched to the outputs of the previous stage every falling edge. However, the stall triggering signal from decode on branches and jumps are fed into the EX stage via two sequentially buffers. This is because the stall command must affect the instruction after the branch/jump instruction since it has been incorrectly fetched. These incorrectly fetched instructions are decoded properly but then nullified in the EX stage.
+% subsection stage_interconnection (end)
+
+
+
+% section design (end)
+
 \section{Optimization} % (fold)
 \label{sec:optimisation}
 To optimize the performance of our pipelined processor, we decided to implement prediction hardware to reduce the number of invalid instruction fetch after a branch instruction. First we implemented a one bit predictor as a proof of concept and then implemented the two bit predictor. We compared the performance of both based on $<$FIND PERFORMANCE CRITERIA$>$.
